@@ -12,9 +12,14 @@ packages = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4.0"
+reportlab = "^4.1.0"
+requests = "^2.31.0"
+qrcode = "^7.4.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.2.0"
+pandas = "<2.2.3"
+pandas-stubs = "<2.2.1.240317"
 mypy = "^1.5.1"
 pre-commit = "^3.4.0"
 tox = "^4.11.1"
