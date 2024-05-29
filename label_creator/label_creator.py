@@ -2,16 +2,17 @@
 
 import os
 import tkinter as tk
+import webbrowser
 from tkinter import filedialog
 from typing import Any
-import webbrowser
 
-import requests
+import create_labels_csv
 import create_new_labels
+import requests
 
 
 class MainPage(tk.Frame):
-    def __init__(self, parent:tk.Tk, *args: Any, **kwargs: Any):
+    def __init__(self, parent: tk.Tk, *args: Any, **kwargs: Any):
         """
         Initializes an instance of the class.
 
@@ -22,7 +23,7 @@ class MainPage(tk.Frame):
         Returns:
             None
         """
-        
+
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
         # Create widgets for the main page
@@ -31,17 +32,22 @@ class MainPage(tk.Frame):
         label_labels = tk.Label(self, text="Create labels")
         label_labels.pack()
 
-        button_new_labels = tk.Button(self, text="Generate labels from scratch", width = 40, command=self.open_new_labels)
+        button_new_labels = tk.Button(self, text="Generate labels from scratch", width=40, command=self.open_new_labels)
         button_new_labels.pack()
 
-        button_mobile_container = tk.Button(self, text="Generate mobile containers labels from scratch", width = 40, command=self.open_mobile_container)
+        button_mobile_container = tk.Button(
+            self, text="Generate mobile containers labels from scratch", width=40, command=self.open_mobile_container
+        )
         button_mobile_container.pack()
 
         button_static_container = tk.Button(
-            self, text="Generate static containers labels from scratch", width = 40, command=self.open_static_container)
+            self, text="Generate static containers labels from scratch", width=40, command=self.open_static_container
+        )
         button_static_container.pack()
 
-        button_existing= tk.Button(self, text="Print already existing labels from a table", width = 40, command=self.open_existing_label)
+        button_existing = tk.Button(
+            self, text="Print already existing labels from a table", width=40, command=self.open_existing_label
+        )
         button_existing.pack()
 
         # Add some space to discriminate label generation from adding a new site
@@ -55,7 +61,7 @@ class MainPage(tk.Frame):
         label_new_site = tk.Label(self, text="Add a new site to the database")
         label_new_site.pack()
 
-        button_new_site = tk.Button(self, text="Add a new site", width = 40, command=self.open_new_site)
+        button_new_site = tk.Button(self, text="Add a new site", width=40, command=self.open_new_site)
         button_new_site.pack()
 
     def open_new_labels(self):
@@ -66,9 +72,10 @@ class MainPage(tk.Frame):
 
     def open_mobile_container(self):
         # Hide the main page and open Window 2
-        self.pack_forget()
-        window1 = Window2(self.master)
-        window1.pack()
+        # self.pack_forget()
+        # window1 = Window2(self.master)
+        # window1.pack()
+        print("not implemented")
 
     def open_static_container(self):
         # Hide the main page and open Window 3
@@ -77,10 +84,10 @@ class MainPage(tk.Frame):
         window3.pack()
 
     def open_existing_label(self):
-        # Hide the main page and open Window 4
-        self.pack_forget()
-        window4 = Window4(self.master)
-        window4.pack()
+        # Create a new Toplevel window for the new labels
+        new_labels_csv_window = tk.Toplevel(root)
+        new_labels_csv_window.title("Generate new labels from a CSV")
+        newLabelsCsv(new_labels_csv_window, root)
 
     def open_new_site(self):
         # Hide the main page and open Window 4
@@ -119,7 +126,11 @@ class newLabels(tk.Frame):
         frame_info.pack(pady=(10, 20))
 
         # Create widgets for the main page
-        self.label = tk.Label(frame_info, text="Generates avery L4732 (https://www.avery.co.uk/template-l4732) labels and reserves the codes in directus", cursor="hand2")
+        self.label = tk.Label(
+            frame_info,
+            text="Generates avery L4732 (https://www.avery.co.uk/template-l4732) labels and reserves the codes in directus",
+            cursor="hand2",
+        )
         self.label.pack()
         # Makes the link clickable
         self.label.bind("<Button-1>", self.open_link)
@@ -135,13 +146,13 @@ class newLabels(tk.Frame):
         entry_password = tk.Entry(self.new_labels_window, textvariable=self.password, show="*")
         entry_password.pack()
 
-        #Extract the project names from directus
+        # Extract the project names from directus
         collection_url = "http://directus.dbgi.org/items/EMI_codes"
-        column = 'emi_code'
-        params = {'sort[]': f'{column}'}
+        column = "emi_code"
+        params = {"sort[]": f"{column}"}
         session = requests.Session()
         response = session.get(collection_url, params=params)
-        data = response.json()['data']
+        data = response.json()["data"]
         project_names = [item[column] for item in data]
 
         # Choose the project
@@ -243,13 +254,7 @@ class newLabels(tk.Frame):
         output_folder = os.environ.get("OUTPUT_FOLDER")
         project = os.environ.get("PROJECT")
 
-        if (
-            username
-            and password
-            and number
-            and output_folder
-            and project
-        ):
+        if username and password and number and output_folder and project:
             # Define the Directus base URL
             base_url = "http://directus.dbgi.org"
 
@@ -278,83 +283,104 @@ class newLabels(tk.Frame):
             self.label.config(text="Please provide all asked values", foreground="red")
 
 
+class newLabelsCsv(tk.Frame):
+    def __init__(self, new_labels_csv_window: tk.Toplevel, root: tk.Tk):
+        self.new_labels_csv_window = new_labels_csv_window
+        self.root = root
 
-class Window2(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
+        # Hide main page
+        self.root.withdraw()
+
+        self.new_labels_csv_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
         # Create a variable to store the entered text
-        self.username = tk.StringVar(None)
-        self.password = tk.StringVar(None)
-        self.number_rows = tk.IntVar(None)
-        self.number_cols = tk.IntVar(None)
-        self.number = tk.IntVar(None)
-        self.location = tk.StringVar(None)
-        self.storage = tk.StringVar(None)
+        self.number_ext = tk.StringVar()
+        self.number_inj = tk.StringVar()
+        self.parambig = tk.IntVar()
+        self.paramsmall = tk.IntVar()
 
         # Create widgets for the main page
-        label = tk.Label(self, text="Generate mobile containers labels from scratch")
+        label = tk.Label(self.new_labels_csv_window, text="Print already existing labels using a CSV")
         label.pack()
 
-        # Create text entry fields
-        label_username = tk.Label(self, text="Your directus username:")
-        label_username.pack()
-        entry_username = tk.Entry(self, textvariable=self.username)
-        entry_username.pack()
+        import_label = tk.Label(
+            self.new_labels_csv_window, text="CSV is expected to have a unique column containing codes, without header"
+        )
+        import_label.pack()
+        self.import_button = tk.Button(self.new_labels_csv_window, text="Import your CSV", command=self.import_csv)
+        self.import_button.pack()
 
-        label_password = tk.Label(self, text="Your directus password:")
-        label_password.pack()
-        entry_password = tk.Entry(self, textvariable=self.password, show="*")
-        entry_password.pack()
-
-        # Nuber of rows
-        number_rows = tk.Label(self, text="Container's rows number:")
-        number_rows.pack()
-        number_entry_rows = tk.Entry(self, textvariable=self.number_rows)
-        number_entry_rows.pack()
-
-        # Nuber of columns
-        number_columns = tk.Label(self, text="Container's columns number:")
-        number_columns.pack()
-        number_entry_columns = tk.Entry(self, textvariable=self.number_cols)
-        number_entry_columns.pack()
-
-        # Number of labels
-        number_label = tk.Label(self, text="Number of labels you want:")
-        number_label.pack()
-        number_entry = tk.Entry(self, textvariable=self.number)
-        number_entry.pack()
-
-        output_label = tk.Label(self, text="Select the output path for the pdf file")
+        output_label = tk.Label(self.new_labels_csv_window, text="Select the output path for the pdf files")
         output_label.pack()
-        output_button = tk.Button(self, text="select path", command=self.output_folder)
-        output_button.pack()
+        self.output_button = tk.Button(self.new_labels_csv_window, text="select path", command=self.output_folder)
+        self.output_button.pack()
 
-        button_submit = tk.Button(self, text="Submit", command=self.show_values)
+        # Choose big labels
+        check_big = tk.Checkbutton(self.new_labels_csv_window, text="big labels (avery L4732)", variable=self.parambig)
+        check_big.pack()
+
+        # Choose small labels extraction
+        check_small = tk.Checkbutton(
+            self.new_labels_csv_window, text="small labels (avery L4731)", variable=self.paramsmall
+        )
+        check_small.pack()
+
+        button_submit = tk.Button(self.new_labels_csv_window, text="Submit", command=self.submit_result)
         button_submit.pack()
 
-        button_back = tk.Button(self, text="Back to Main Page", command=self.back_to_main)
+        button_back = tk.Button(self.new_labels_csv_window, text="Back to Main Page", command=self.on_exit)
         button_back.pack()
 
-    def back_to_main(self):
-        # Destroy Window 2 and show the main page
-        self.destroy()
-        main_page.pack()
+    def on_exit(self) -> None:
+        """
+        Defines behaviour when user quits this window (by x button or specified button).
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.new_labels_csv_window.destroy()
+        self.root.deiconify()
+
+    def import_csv(self) -> None:
+        """
+        Asks the path to input CSV.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        csv_file = os.environ["FILE_PATH"] = filedialog.askopenfilename(filetypes=[("CSV Files", "*.csv")])
+        if csv_file:
+            parts = csv_file.split("/")
+            file = parts[-1]
+            self.import_button.config(text=file)
 
     def output_folder(self):
-        os.environ["output_folder"] = filedialog.askdirectory()
+        output_dir = os.environ["OUTPUT_FOLDER"] = filedialog.askdirectory()
+        if output_dir:
+            parts = output_dir.split("/")
+            dir = parts[-1]
+            self.output_button.config(text=dir)
 
-    def show_values(self):
+    def submit_result(self) -> None:
+        """
+        performs modifications on the CSV, submit them to directus and writes the output csv.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         # Retrieve the entered values
-        os.environ["username"] = self.username.get()
-        os.environ["password"] = self.password.get()
-        os.environ["number_rows"] = str(self.number_rows.get())
-        os.environ["number_cols"] = str(self.number_cols.get())
-        os.environ["number"] = str(self.number.get())
-        os.environ["location"] = self.location.get()
-        os.environ["storage"] = self.storage.get()
-        self.master.destroy()
-        gui_Processing_mobile_containers.main()
+        os.environ["PARAMBIG"] = str(self.parambig.get())
+        os.environ["PARAMSMALL"] = str(self.paramsmall.get())
+        create_labels_csv.main()
 
 
 class WindowStaticContainer(tk.Frame):

@@ -55,7 +55,6 @@ def main(new_labels_window, root):
     response = session.post(url=collection_url, headers=headers, data=records)
 
     if response.status_code == 200:
-
         # Splitting the values into groups of 80 (number of labels per page)
         value_groups = [values[i : i + 80] for i in range(0, len(values), 80)]
 
@@ -131,4 +130,3 @@ def main(new_labels_window, root):
     else:
         print("directus error, please try again.")
         print(response.status_code)
-        
