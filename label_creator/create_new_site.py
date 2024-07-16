@@ -13,7 +13,6 @@ def main(new_site_window, root):
     domains = os.environ.get("DOMAINS")
     access_token = os.environ.get("ACCESS_TOKEN")
 
-
     # Define the Directus URLs
     base_url = "http://directus.dbgi.org"
     collection_url = base_url + "/items/University"
@@ -22,16 +21,20 @@ def main(new_site_window, root):
     session = requests.Session()
 
     # Create template dataframe to reserve labels
-    raw_data = {"University_name": site,
-                "status": "Active",
-                "country": country,
-                "alpha_two": alpha_two_code,
-                "web_pages": web_pages,
-                "state": state,
-                "domains": domains
-                }
+    raw_data = {
+        "University_name": site,
+        "status": "Active",
+        "country": country,
+        "alpha_two": alpha_two_code,
+        "web_pages": web_pages,
+        "state": state,
+        "domains": domains,
+    }
 
-    template = pd.DataFrame([raw_data for _ in range(1)], columns=["University_name", "status", "country", "alpha_two", "web_pages", "state", "domains"])
+    template = pd.DataFrame(
+        [raw_data for _ in range(1)],
+        columns=["University_name", "status", "country", "alpha_two", "web_pages", "state", "domains"],
+    )
 
     record = template.to_json(orient="records")
 

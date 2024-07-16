@@ -405,7 +405,6 @@ def main(csv_labels_window, root):
             "One or more paramters are empty or not set. Unable to generate pdf. Selected one or more label sizes and enter all needed parameters"
         )
 
-
     def calculate_text_width(text, font_name, font_size):
         root = tk.Tk()
         test_label = tk.Label(root, text=text, font=(font_name, font_size))
@@ -417,14 +416,12 @@ def main(csv_labels_window, root):
         width_cm = width_pixels / (pixels_per_inch * (1 / 2.54))
         return width_cm
 
-
     def get_screen_resolution():
         root = tk.Tk()
         screen_width = root.winfo_screenwidth()
         screen_height = root.winfo_screenheight()
         root.destroy()
         return screen_width, screen_height
-
 
     def get_screen_ppi():
         root = tk.Tk()

@@ -2,19 +2,17 @@
 
 import os
 import tkinter as tk
-from tkinter import ttk
 import webbrowser
-from tkinter import filedialog
+from tkinter import filedialog, ttk
 from typing import Any
 
+import create_labels_csv
 import create_new_labels
 import create_new_mob_cont
-import create_new_stat_cont
-import create_labels_csv
 import create_new_site
-
-import requests
+import create_new_stat_cont
 import pandas as pd
+import requests
 from fuzzywuzzy import process
 
 
@@ -52,9 +50,7 @@ class MainPage(tk.Frame):
         )
         button_static_container.pack()
 
-        button_existing = tk.Button(
-            self, text="Print labels from a CSV", width=40, command=self.open_csv_labels
-        )
+        button_existing = tk.Button(self, text="Print labels from a CSV", width=40, command=self.open_csv_labels)
         button_existing.pack()
 
         # Add some space to discriminate label generation from adding a new site
@@ -362,7 +358,9 @@ class newMobCont(tk.Frame):
         # Asks where to store the pdf
         output_label = tk.Label(self.new_mob_cont_window, text="Select pdf output path:")
         output_label.pack()
-        self.output_button = tk.Button(self.new_mob_cont_window, text="select path", width=17, command=self.output_folder)
+        self.output_button = tk.Button(
+            self.new_mob_cont_window, text="select path", width=17, command=self.output_folder
+        )
         self.output_button.pack()
 
         frame_submit = tk.Frame(self.new_mob_cont_window)
@@ -533,7 +531,9 @@ class newStatCont(tk.Frame):
         # Asks where to store the pdf
         output_label = tk.Label(self.new_stat_cont_window, text="Select pdf output path:")
         output_label.pack()
-        self.output_button = tk.Button(self.new_stat_cont_window, text="select path", width=17, command=self.output_folder)
+        self.output_button = tk.Button(
+            self.new_stat_cont_window, text="select path", width=17, command=self.output_folder
+        )
         self.output_button.pack()
 
         frame_submit = tk.Frame(self.new_stat_cont_window)
@@ -693,7 +693,8 @@ class csvLabels(tk.Frame):
         import_label.pack()
 
         warning_label = tk.Label(
-            self.csv_labels_window, text="Be careful, this mode doesn't verify that labels are unique and doesn't enter them into Directus."
+            self.csv_labels_window,
+            text="Be careful, this mode doesn't verify that labels are unique and doesn't enter them into Directus.",
         )
         warning_label.pack()
 
@@ -854,7 +855,9 @@ class newSite(tk.Frame):
 
             # Bind event handlers for updating suggestions
             self.combobox_country.bind("<KeyRelease>", lambda event: root.after(50, self.update_country_suggestions))
-            self.combobox_university.bind("<KeyRelease>", lambda event: root.after(50, self.update_university_suggestions))
+            self.combobox_university.bind(
+                "<KeyRelease>", lambda event: root.after(50, self.update_university_suggestions)
+            )
 
             self.label_info = tk.Label(self.new_site_window, text="Selected site:")
             self.label_info.pack()
@@ -1001,10 +1004,6 @@ class newSite(tk.Frame):
             os.environ["STATE"] = str(subset["state-province"].values[0])
             os.environ["SITE"] = str(subset["name"].values[0])
             os.environ["DOMAINS"] = str(subset["domains"].values[0])
-
-
-        
-
 
 
 # Create the main window
