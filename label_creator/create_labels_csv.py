@@ -1,15 +1,14 @@
-import math
-import os
-import tkinter as tk
+def main(csv_labels_window, root):
+    import math
+    import os
+    import tkinter as tk
 
-import pandas as pd
-import qrcode
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import cm
-from reportlab.pdfgen import canvas
+    import pandas as pd
+    import qrcode
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib.units import cm
+    from reportlab.pdfgen import canvas
 
-
-def main():
     # Variables of the second window (from existing)
     file_path = os.environ.get("FILE_PATH")
     output_folder = os.environ.get("OUTPUT_FOLDER")
@@ -398,6 +397,8 @@ def main():
 
             # Save and close the PDF file
             pdf.save()
+            csv_labels_window.destroy()
+            root.destroy()
 
     else:
         print(
@@ -405,34 +406,34 @@ def main():
         )
 
 
-def calculate_text_width(text, font_name, font_size):
-    root = tk.Tk()
-    test_label = tk.Label(root, text=text, font=(font_name, font_size))
-    test_label.pack()
-    width_pixels = test_label.winfo_reqwidth()
-    root.destroy()
+    def calculate_text_width(text, font_name, font_size):
+        root = tk.Tk()
+        test_label = tk.Label(root, text=text, font=(font_name, font_size))
+        test_label.pack()
+        width_pixels = test_label.winfo_reqwidth()
+        root.destroy()
 
-    pixels_per_inch = get_screen_ppi()
-    width_cm = width_pixels / (pixels_per_inch * (1 / 2.54))
-    return width_cm
-
-
-def get_screen_resolution():
-    root = tk.Tk()
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    root.destroy()
-    return screen_width, screen_height
+        pixels_per_inch = get_screen_ppi()
+        width_cm = width_pixels / (pixels_per_inch * (1 / 2.54))
+        return width_cm
 
 
-def get_screen_ppi():
-    root = tk.Tk()
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    screen_diagonal_pixels = math.sqrt(screen_width**2 + screen_height**2)
-    screen_diagonal_inches = math.sqrt(
-        (screen_width / root.winfo_fpixels("1i")) ** 2 + (screen_height / root.winfo_fpixels("1i")) ** 2
-    )
-    ppi = screen_diagonal_pixels / screen_diagonal_inches
-    root.destroy()
-    return ppi
+    def get_screen_resolution():
+        root = tk.Tk()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        root.destroy()
+        return screen_width, screen_height
+
+
+    def get_screen_ppi():
+        root = tk.Tk()
+        screen_width = root.winfo_screenwidth()
+        screen_height = root.winfo_screenheight()
+        screen_diagonal_pixels = math.sqrt(screen_width**2 + screen_height**2)
+        screen_diagonal_inches = math.sqrt(
+            (screen_width / root.winfo_fpixels("1i")) ** 2 + (screen_height / root.winfo_fpixels("1i")) ** 2
+        )
+        ppi = screen_diagonal_pixels / screen_diagonal_inches
+        root.destroy()
+        return ppi

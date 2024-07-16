@@ -1,4 +1,4 @@
-def main(new_labels_window, root):
+def main(new_stat_cont_window, root):
     import os
 
     import pandas as pd
@@ -12,13 +12,13 @@ def main(new_labels_window, root):
     number = int(os.environ.get("NUMBER"))
     output_folder = os.environ.get("OUTPUT_FOLDER")
     access_token = os.environ.get("ACCESS_TOKEN")
-    project = os.environ.get("PROJECT")
+    container_prefix = "container_static_"
 
     # Define the Directus URLs
-    field_name = "field_sample_id"
+    field_name = "container_id"
     base_url = "http://directus.dbgi.org"
-    collection_url = base_url + "/items/Labels"
-    request_url = collection_url + f"?filter[{field_name}][_starts_with]={project}_&&limit=1"
+    collection_url = base_url + "items/Static_Container"
+    request_url = collection_url + f"?filter[{field_name}][_starts_with]={container_prefix}_&&limit=1"
 
     # Define session
     session = requests.Session()
@@ -29,7 +29,7 @@ def main(new_labels_window, root):
     last_value = response.json()["data"][0][field_name] if response.json()["data"] else "null"
 
     if last_value != "null":
-        last_number = int(last_value.split("_")[1])
+        last_number = int(last_value.split("_")[2])
     else:
         last_number = 0
 
@@ -39,17 +39,20 @@ def main(new_labels_window, root):
     first_number = last_number + 1
 
     # Create template dataframe to reserve labels
-    row_data = {"reserved": "true"}
+    row_data = {"reserved": "True"}
 
     template = pd.DataFrame([row_data for _ in range(number)], columns=["reserved"])
 
     # Generate the container IDs
-    template["field_sample_id"] = [f"{project}_" "{:06d}".format(first_number + i) for i in range(number)]
+    template["container_id"] = [f"{container_prefix}" "{:06d}".format(first_number + i) for i in range(number)]
+
+    # Print the resulting DataFrame
+    print(template)
 
     headers = {"Content-Type": "application/json"}
 
     # Create a list with the asked codes beginning with the first number
-    values = [f"{project}_{first_number + i:06d}" for i in range(number)]
+    values = [f"{container_prefix}" "{:06d}".format(first_number + i) for i in range(number)]
     records = template.to_json(orient="records")
 
     # Add the codes to the database
@@ -61,11 +64,11 @@ def main(new_labels_window, root):
         value_groups = [values[i : i + 80] for i in range(0, len(values), 80)]
 
         # Set up the PDF canvas
-        pdf_path = output_folder + "/big_labels_generated.pdf"
+        pdf_path = output_folder + "/static_container_labels_generated.pdf"
         pdf = canvas.Canvas(pdf_path, pagesize=A4)
 
         # Set the font size and line height
-        font_size = 12
+        font_size = 7.5
 
         # Set the dimensions of the labels in centimeters
         label_width_cm = 3.56 * cm
@@ -100,10 +103,10 @@ def main(new_labels_window, root):
                 pos_y = y + (i // 5) * y_spacing
 
                 # Draw the label text
-                pdf.setFont("Helvetica", font_size)
-                pdf.drawString(pos_x + 0.55 * cm, pos_y + 0.9 * cm, value[:5])
-                pdf.setFont("Helvetica", font_size)  # Reduce font size for the second line
-                pdf.drawString(pos_x + 0.3 * cm, pos_y + 0.4 * cm, value[5:])
+                pdf.setFont("Helvetica-Bold", font_size)
+                pdf.drawString(pos_x + 0.4 * cm, pos_y + 0.9 * cm, value[:10])
+                pdf.setFont("Helvetica-Bold", font_size)  # Reduce font size for the second line
+                pdf.drawString(pos_x + 0.07 * cm, pos_y + 0.4 * cm, value[10:])
 
                 # Draw the QR code
                 qr = qrcode.QRCode(
@@ -127,7 +130,7 @@ def main(new_labels_window, root):
 
         # Save and close the PDF file
         pdf.save()
-        new_labels_window.destroy()
+        new_stat_cont_window.destroy()
         root.destroy()
     else:
         print("directus error, please try again.")
