@@ -17,7 +17,7 @@ def main(new_stat_cont_window, root):
     # Define the Directus URLs
     field_name = "container_id"
     base_url = "http://directus.dbgi.org"
-    collection_url = base_url + "items/Static_Container"
+    collection_url = base_url + "/items/Static_Container"
     request_url = collection_url + f"?filter[{field_name}][_starts_with]={container_prefix}_&&limit=1"
 
     # Define session
@@ -33,8 +33,6 @@ def main(new_stat_cont_window, root):
     else:
         last_number = 0
 
-    print(last_number)
-
     # Define the first number of the list (last number + 1)
     first_number = last_number + 1
 
@@ -45,9 +43,6 @@ def main(new_stat_cont_window, root):
 
     # Generate the container IDs
     template["container_id"] = [f"{container_prefix}" "{:06d}".format(first_number + i) for i in range(number)]
-
-    # Print the resulting DataFrame
-    print(template)
 
     headers = {"Content-Type": "application/json"}
 

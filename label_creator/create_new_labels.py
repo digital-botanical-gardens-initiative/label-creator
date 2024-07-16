@@ -33,8 +33,6 @@ def main(new_labels_window, root):
     else:
         last_number = 0
 
-    print(last_number)
-
     # Define the first number of the list (last number + 1)
     first_number = last_number + 1
 

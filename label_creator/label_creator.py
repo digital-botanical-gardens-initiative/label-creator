@@ -2,6 +2,7 @@
 
 import os
 import tkinter as tk
+from tkinter import ttk
 import webbrowser
 from tkinter import filedialog
 from typing import Any
@@ -10,8 +11,11 @@ import create_new_labels
 import create_new_mob_cont
 import create_new_stat_cont
 import create_labels_csv
+import create_new_site
 
 import requests
+import pandas as pd
+from fuzzywuzzy import process
 
 
 class MainPage(tk.Frame):
@@ -772,52 +776,235 @@ class csvLabels(tk.Frame):
         create_labels_csv.main(self.csv_labels_window, self.root)
 
 
-class Window3(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
+class newSite(tk.Frame):
+    def __init__(self, new_site_window: tk.Toplevel, root: tk.Tk):
+        """
+        Initializes an instance of the class.
+
+        Args:
+            csv_labels_window(tk.Toplevel): The parent widget where this frame will be placed.
+            root(tk.Tk): The root window to perform actions on it.
+
+        Returns:
+            None
+        """
+
+        self.new_site_window = new_site_window
+        self.root = root
+
+        # Hide main page
+        self.root.withdraw()
+
+        self.new_site_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
         # Create a variable to store the entered text
-        self.username = tk.StringVar()
-        self.password = tk.StringVar()
-        self.number = tk.IntVar()
-        self.location = tk.StringVar()
-        self.storage = tk.StringVar()
+        self.username = tk.StringVar(None)
+        self.password = tk.StringVar(None)
 
         # Create widgets for the main page
-        label = tk.Label(self, text="Register a new site")
-        label.pack()
+        self.label = tk.Label(self.new_site_window, text="Register a new site")
+        self.label.pack()
 
-        # Create text entry fields
-        label_username = tk.Label(self, text="Your directus username:")
-        label_username.pack()
-        entry_username = tk.Entry(self, textvariable=self.username)
-        entry_username.pack()
+        # Request the university list
+        list_uni = requests.get("http://universities.hipolabs.com/search?")
+        if list_uni.status_code == 200:
+            data = list_uni.json()
 
-        label_password = tk.Label(self, text="Your directus password:")
-        label_password.pack()
-        entry_password = tk.Entry(self, textvariable=self.password, show="*")
-        entry_password.pack()
+            # Extract the needed values from the list
+            self.dataf = pd.DataFrame(
+                data=data, columns=["alpha_two_code", "web_pages", "country", "state-province", "name", "domains"]
+            )
 
-        button_submit = tk.Button(self, text="Submit", command=self.show_values)
-        button_submit.pack()
+            # Sort universities by country
+            unique_countries = self.dataf["country"].drop_duplicates().reset_index(drop=True)
+            self.sorted_countries = pd.DataFrame(unique_countries).sort_values("country").reset_index(drop=True)
 
-        button_back = tk.Button(self, text="Back to Main Page", command=self.back_to_main)
-        button_back.pack()
+            # Create text entry fields
+            label_username = tk.Label(self.new_site_window, text="Your directus username:")
+            label_username.pack()
+            entry_username = tk.Entry(self.new_site_window, textvariable=self.username)
+            entry_username.pack()
 
-    def back_to_main(self):
-        # Destroy Window 2 and show the main page
-        self.destroy()
-        main_page.pack()
+            label_password = tk.Label(self.new_site_window, text="Your directus password:")
+            label_password.pack()
+            entry_password = tk.Entry(self.new_site_window, textvariable=self.password, show="*")
+            entry_password.pack()
 
-    def output_folder(self):
-        os.environ["output_folder"] = filedialog.askdirectory()
+            label_country = tk.Label(self.new_site_window, text="Search for a country")
+            label_country.pack()
 
-    def show_values(self):
+            self.combobox_country = ttk.Combobox(self.new_site_window)
+            self.combobox_country.pack()
+
+            self.listbox_country = tk.Listbox(self.new_site_window, height=3, width=50, font=("Helvetica", 10))
+            self.listbox_country.pack()
+
+            label_university = tk.Label(self.new_site_window, text="Search for a university")
+            label_university.pack()
+
+            self.combobox_university = ttk.Combobox(self.new_site_window)
+            self.combobox_university.pack()
+
+            self.listbox_university = tk.Listbox(self.new_site_window, height=3, width=50, font=("Helvetica", 10))
+            self.listbox_university.pack()
+
+            # Bind the event handlers for country and university selection
+            self.listbox_country.bind("<<ListboxSelect>>", self.on_country_select)
+            self.listbox_university.bind("<<ListboxSelect>>", self.on_university_select)
+
+            # Bind event handlers for updating suggestions
+            self.combobox_country.bind("<KeyRelease>", lambda event: root.after(50, self.update_country_suggestions))
+            self.combobox_university.bind("<KeyRelease>", lambda event: root.after(50, self.update_university_suggestions))
+
+            self.label_info = tk.Label(self.new_site_window, text="Selected site:")
+            self.label_info.pack()
+
+            frame_submit = tk.Frame(self.new_site_window)
+            frame_submit.pack(pady=(50, 0))
+
+            # Submit button
+            button_submit = tk.Button(frame_submit, text="Submit", width=17, command=self.show_values)
+            button_submit.pack(side="left")
+
+            # Back to main button
+            button_back = tk.Button(frame_submit, text="Back to Main Page", width=17, command=self.on_exit)
+            button_back.pack(side="right")
+        else:
+            self.label.config(text="No access to Hipo API, please verify your internet connection.", foreground="red")
+
+    def on_exit(self) -> None:
+        """
+        Defines behaviour when user quits this window (by x button or specified button).
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        self.new_site_window.destroy()
+        self.root.deiconify()
+
+    def show_values(self) -> None:
+        """
+        Stores all the parameters to the environment when user confirms his choice.
+
+        Args:
+            clicked_button(str): A string ("new" or "csv"), that defines which window will be launched after home page.
+
+        Returns:
+            None
+        """
+
         # Retrieve the entered values
-        os.environ["username"] = self.username.get()
-        os.environ["password"] = self.password.get()
-        self.master.destroy()
-        gui_Select_university.main()
+        os.environ["USERNAME"] = self.username.get()
+        os.environ["PASSWORD"] = self.password.get()
+        self.test_connection()
+
+    def test_connection(self) -> None:
+        """
+        Controls that user has passed all the necessary arguments.
+        If it is the case, it tries to connect to directus and if connection is successful,
+        stores the access token for further requests.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        username = os.environ.get("USERNAME")
+        password = os.environ.get("PASSWORD")
+        site = os.environ.get("SITE")
+
+        if username and password and site:
+            # Define the Directus base URL
+            base_url = "http://directus.dbgi.org"
+
+            # Define the login endpoint URL
+            login_url = base_url + "/auth/login"
+            # Create a session object for making requests
+            session = requests.Session()
+            # Send a POST request to the login endpoint
+            response = session.post(login_url, json={"email": username, "password": password})
+            # Test if connection is successful
+            if response.status_code == 200:
+                # Stores the access token
+                data = response.json()["data"]
+                access_token = data["access_token"]
+                os.environ["ACCESS_TOKEN"] = str(access_token)
+                create_new_site.main(self.new_site_window, self.root)
+
+            # If connection to directus failed, informs the user that connection failed.
+            else:
+                self.label.config(
+                    text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
+                )
+
+        else:
+            # If user didn't enter all necessary values, shows this message
+            self.label.config(text="Please provide all asked values", foreground="red")
+
+    def update_country_suggestions(self):
+        global selected_country, country_suggestions
+        selected_item = self.combobox_country.get()
+        if selected_item:
+            # Use fuzzywuzzy to get the best matches for countries
+            matches = process.extract(selected_item, self.sorted_countries["country"].tolist(), limit=3)
+            country_suggestions = [match for match, _ in matches if _ >= 50]  # Adjust threshold as needed
+
+            # Update the listbox with country suggestions
+            self.listbox_country.delete(0, tk.END)
+            for suggestion in country_suggestions:
+                self.listbox_country.insert(tk.END, suggestion)
+
+    def update_university_suggestions(self):
+        global selected_country, selected_university, university_suggestions
+        if selected_country:
+            # Filter universities based on selected country
+            country_filtered_universities = self.dataf[self.dataf["country"] == selected_country]
+            os.environ["country"] = str(selected_country)
+            selected_item = self.combobox_university.get()
+            if selected_item:
+                # Use fuzzywuzzy to get the best matches for universities in the selected country
+                matches = process.extract(selected_item, country_filtered_universities["name"].tolist(), limit=7)
+                university_suggestions = [match for match, _ in matches if _ >= 50]  # Adjust threshold as needed
+
+                # Update the listbox with university suggestions
+                self.listbox_university.delete(0, tk.END)
+                for suggestion in university_suggestions:
+                    self.listbox_university.insert(tk.END, suggestion)
+
+    def on_country_select(self, event):
+        global selected_country
+        selected_index = self.listbox_country.curselection()
+        if selected_index:
+            selected_suggestion = self.listbox_country.get(selected_index)
+            self.combobox_country.delete(0, tk.END)
+            self.combobox_country.insert(tk.END, selected_suggestion)
+            selected_country = selected_suggestion
+            self.update_university_suggestions()
+
+    def on_university_select(self, event):
+        global selected_university
+        selected_index = self.listbox_university.curselection()
+        if selected_index:
+            selected_suggestion = self.listbox_university.get(selected_index)
+            self.combobox_university.delete(0, tk.END)
+            self.combobox_university.insert(tk.END, selected_suggestion)
+            selected_university = selected_suggestion
+            self.label_info.config(text=f"Selected site: {selected_university}")
+            subset = self.dataf[self.dataf["name"] == selected_university]
+            os.environ["ALPHA_TWO_CODE"] = str(subset["alpha_two_code"].values[0])
+            os.environ["WEB_PAGES"] = str(subset["web_pages"].values[0])
+            os.environ["COUNTRY"] = str(subset["country"].values[0])
+            os.environ["STATE"] = str(subset["state-province"].values[0])
+            os.environ["SITE"] = str(subset["name"].values[0])
+            os.environ["DOMAINS"] = str(subset["domains"].values[0])
+
+
+        
+
 
 
 # Create the main window
