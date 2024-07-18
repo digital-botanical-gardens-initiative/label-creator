@@ -936,7 +936,7 @@ class newSite(tk.Frame):
                 data = response.json()["data"]
                 access_token = data["access_token"]
                 os.environ["ACCESS_TOKEN"] = str(access_token)
-                create_new_site.main(self.new_site_window, self.root)
+                create_new_site.main(self.new_site_window, self.root, self.label)
 
             # If connection to directus failed, informs the user that connection failed.
             else:

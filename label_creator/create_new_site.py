@@ -1,7 +1,7 @@
 import tkinter as tk
 
 
-def main(new_site_window: tk.Toplevel, root: tk.Tk) -> None:
+def main(new_site_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     import os
 
     import pandas as pd
@@ -46,9 +46,8 @@ def main(new_site_window: tk.Toplevel, root: tk.Tk) -> None:
     session.headers.update({"Authorization": f"Bearer {access_token}"})
     response = session.post(url=collection_url, headers=headers, data=record)
     if response.status_code == 200:
-        print("Site correctly added")
         new_site_window.destroy()
         root.destroy()
 
     elif response.status_code == 400:
-        print("Site already entered")
+        label.config(text="Site already entered in the database.", foreground="red")
