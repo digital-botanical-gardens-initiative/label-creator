@@ -3,7 +3,7 @@
 import os
 import tkinter as tk
 import webbrowser
-from tkinter import filedialog, ttk
+from tkinter import Event, filedialog, ttk
 from typing import Any
 
 import create_labels_csv
@@ -67,31 +67,31 @@ class MainPage(tk.Frame):
         button_new_site = tk.Button(self, text="Add a new site", width=40, command=self.open_new_site)
         button_new_site.pack()
 
-    def open_new_labels(self):
+    def open_new_labels(self) -> None:
         # Create a new Toplevel window for the new labels
         new_labels_window = tk.Toplevel(root)
         new_labels_window.title("Generate new labels")
         newLabels(new_labels_window, root)
 
-    def open_mobile_container(self):
+    def open_mobile_container(self) -> None:
         # Create a new Toplevel window for the mobile containers
         new_mob_cont_window = tk.Toplevel(root)
         new_mob_cont_window.title("Generate new mobile containers labels")
         newMobCont(new_mob_cont_window, root)
 
-    def open_static_container(self):
+    def open_static_container(self) -> None:
         # Create a new Toplevel window for the static containers
         new_stat_cont_window = tk.Toplevel(root)
         new_stat_cont_window.title("Generate new static containers labels")
         newStatCont(new_stat_cont_window, root)
 
-    def open_csv_labels(self):
+    def open_csv_labels(self) -> None:
         # Create a new Toplevel window for the labels from CSV
         csv_labels_window = tk.Toplevel(root)
         csv_labels_window.title("Generate labels from CSV")
         csvLabels(csv_labels_window, root)
 
-    def open_new_site(self):
+    def open_new_site(self) -> None:
         # Create a new Toplevel window to add a new site
         new_site_window = tk.Toplevel(root)
         new_site_window.title("Add a new site")
@@ -200,7 +200,7 @@ class newLabels(tk.Frame):
         self.new_labels_window.destroy()
         self.root.deiconify()
 
-    def open_link(self, event):
+    def open_link(self, event: Event) -> None:
         webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
 
     def output_folder(self) -> None:
@@ -387,7 +387,7 @@ class newMobCont(tk.Frame):
         self.new_mob_cont_window.destroy()
         self.root.deiconify()
 
-    def open_link(self, event):
+    def open_link(self, event: Event) -> None:
         webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
 
     def output_folder(self) -> None:
@@ -560,7 +560,7 @@ class newStatCont(tk.Frame):
         self.new_stat_cont_window.destroy()
         self.root.deiconify()
 
-    def open_link(self, event):
+    def open_link(self, event: Event) -> None:
         webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
 
     def output_folder(self) -> None:
@@ -735,7 +735,7 @@ class csvLabels(tk.Frame):
         self.csv_labels_window.destroy()
         self.root.deiconify()
 
-    def open_link(self, event):
+    def open_link(self, event: Event) -> None:
         webbrowser.open_new("https://www.avery.co.uk/template-l4732")
 
     def import_csv(self) -> None:
@@ -754,12 +754,12 @@ class csvLabels(tk.Frame):
             file = parts[-1]
             self.import_button.config(text=file)
 
-    def output_folder(self):
+    def output_folder(self) -> None:
         output_dir = os.environ["OUTPUT_FOLDER"] = filedialog.askdirectory()
         if output_dir:
             parts = output_dir.split("/")
-            dir = parts[-1]
-            self.output_button.config(text=dir)
+            directory = parts[-1]
+            self.output_button.config(text=directory)
 
     def submit_result(self) -> None:
         """
@@ -807,7 +807,7 @@ class newSite(tk.Frame):
         self.label.pack()
 
         # Request the university list
-        list_uni = requests.get("http://universities.hipolabs.com/search?")
+        list_uni = requests.get("http://universities.hipolabs.com/search?", timeout=1000)
         if list_uni.status_code == 200:
             data = list_uni.json()
 
@@ -948,25 +948,22 @@ class newSite(tk.Frame):
             # If user didn't enter all necessary values, shows this message
             self.label.config(text="Please provide all asked values", foreground="red")
 
-    def update_country_suggestions(self):
-        global selected_country, country_suggestions
+    def update_country_suggestions(self) -> None:
         selected_item = self.combobox_country.get()
         if selected_item:
             # Use fuzzywuzzy to get the best matches for countries
             matches = process.extract(selected_item, self.sorted_countries["country"].tolist(), limit=3)
-            country_suggestions = [match for match, _ in matches if _ >= 50]  # Adjust threshold as needed
+            self.country_suggestions = [match for match, _ in matches if _ >= 50]
 
             # Update the listbox with country suggestions
             self.listbox_country.delete(0, tk.END)
-            for suggestion in country_suggestions:
+            for suggestion in self.country_suggestions:
                 self.listbox_country.insert(tk.END, suggestion)
 
-    def update_university_suggestions(self):
-        global selected_country, selected_university, university_suggestions
-        if selected_country:
+    def update_university_suggestions(self) -> None:
+        if self.selected_country:
             # Filter universities based on selected country
-            country_filtered_universities = self.dataf[self.dataf["country"] == selected_country]
-            os.environ["country"] = str(selected_country)
+            country_filtered_universities = self.dataf[self.dataf["country"] == self.selected_country]
             selected_item = self.combobox_university.get()
             if selected_item:
                 # Use fuzzywuzzy to get the best matches for universities in the selected country
@@ -978,26 +975,24 @@ class newSite(tk.Frame):
                 for suggestion in university_suggestions:
                     self.listbox_university.insert(tk.END, suggestion)
 
-    def on_country_select(self, event):
-        global selected_country
+    def on_country_select(self, event: Event) -> None:
         selected_index = self.listbox_country.curselection()
         if selected_index:
             selected_suggestion = self.listbox_country.get(selected_index)
             self.combobox_country.delete(0, tk.END)
             self.combobox_country.insert(tk.END, selected_suggestion)
-            selected_country = selected_suggestion
+            self.selected_country = selected_suggestion
             self.update_university_suggestions()
 
-    def on_university_select(self, event):
-        global selected_university
+    def on_university_select(self, event: Event) -> None:
         selected_index = self.listbox_university.curselection()
         if selected_index:
             selected_suggestion = self.listbox_university.get(selected_index)
             self.combobox_university.delete(0, tk.END)
             self.combobox_university.insert(tk.END, selected_suggestion)
-            selected_university = selected_suggestion
-            self.label_info.config(text=f"Selected site: {selected_university}")
-            subset = self.dataf[self.dataf["name"] == selected_university]
+            self.selected_university = selected_suggestion
+            self.label_info.config(text=f"Selected site: {self.selected_university}")
+            subset = self.dataf[self.dataf["name"] == self.selected_university]
             os.environ["ALPHA_TWO_CODE"] = str(subset["alpha_two_code"].values[0])
             os.environ["WEB_PAGES"] = str(subset["web_pages"].values[0])
             os.environ["COUNTRY"] = str(subset["country"].values[0])

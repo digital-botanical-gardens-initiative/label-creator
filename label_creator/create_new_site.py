@@ -1,10 +1,12 @@
-def main(new_site_window, root):
+import tkinter as tk
+
+
+def main(new_site_window: tk.Toplevel, root: tk.Tk) -> None:
     import os
 
     import pandas as pd
     import requests
 
-    site = os.environ.get("site")
     alpha_two_code = os.environ.get("ALPHA_TWO_CODE")
     web_pages = os.environ.get("WEB_PAGES")
     country = os.environ.get("COUNTRY")

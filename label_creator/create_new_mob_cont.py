@@ -1,4 +1,7 @@
-def main(new_mob_cont_window, root):
+import tkinter as tk
+
+
+def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk) -> None:
     import os
 
     import pandas as pd
@@ -10,9 +13,9 @@ def main(new_mob_cont_window, root):
 
     # Variables of the first window (generate from scratch)
     access_token = os.environ.get("ACCESS_TOKEN")
-    number_row = os.environ.get("NUMBER_ROWS")
-    number_col = os.environ.get("NUMBER_COLS")
-    number = int(os.environ.get("NUMBER"))
+    number_row = int(str(os.environ.get("NUMBER_ROWS")))
+    number_col = int(str(os.environ.get("NUMBER_COLS")))
+    number = int(str(os.environ.get("NUMBER")))
     output_folder = os.environ.get("OUTPUT_FOLDER")
 
     # Construct the container prefix with the given dimensions (bigger value first):
@@ -35,10 +38,7 @@ def main(new_mob_cont_window, root):
     response = session.get(request_url, params=params)
     last_value = response.json()["data"][0][field_name] if response.json()["data"] else "null"
 
-    if last_value != "null":
-        last_number = int(last_value.split("_")[2])
-    else:
-        last_number = 0
+    last_number = int(last_value.split("_")[2]) if last_value != "null" else 0
 
     # Define the first number of the list (last number + 1)
     first_number = last_number + 1
@@ -66,7 +66,7 @@ def main(new_mob_cont_window, root):
         value_groups = [values[i : i + 80] for i in range(0, len(values), 80)]
 
         # Set up the PDF canvas
-        pdf_path = output_folder + "/container_labels_generated.pdf"
+        pdf_path = f"{output_folder}/container_labels_generated.pdf"
         pdf = canvas.Canvas(pdf_path, pagesize=A4)
 
         # Set the font size and line height
