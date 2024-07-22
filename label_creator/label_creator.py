@@ -1,4 +1,4 @@
-# To convert this script into a binary compatible with the OS where the command is executed: 
+# To convert this script into a binary compatible with the OS where the command is executed:
 # pyinstaller --onefile --paths=./ --hidden-import=create_labels_csv --hidden-import=create_new_labels --hidden-import=create_new_mob_cont --hidden-import=create_new_site --hidden-import=create_new_stat_cont label_creator.py
 
 import os
@@ -253,17 +253,13 @@ class newLabels(tk.Frame):
         # Check if the number of labels is effectively an integer
         try:
             number_value = self.number.get()
-        except:
+        except Exception:
             number_value = 0
 
         # Check if output directory has been selected
         try:
-            if self.output_dir:
-                output = self.output_dir
-            else:
-                output = "empty"
-
-        except:
+            output = self.output_dir if self.output_dir else "empty"
+        except Exception:
             output = "empty"
 
         # Check that user entered the correct values
@@ -436,7 +432,7 @@ class newMobCont(tk.Frame):
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
-        button_submit = tk.Button(frame_submit, text="Submit", width=17, command=self.test_connection)
+        button_submit = tk.Button(frame_submit, text="Submit", width=17, command=self.test_parameters)
         button_submit.pack(side="left")
 
         # Back to main button
@@ -481,11 +477,9 @@ class newMobCont(tk.Frame):
             folder = parts[-1]
             self.output_button.config(text=folder)
 
-    def test_connection(self) -> None:
+    def test_parameters(self) -> None:
         """
         Controls that user has passed all the necessary arguments.
-        If it is the case, it tries to connect to directus and if connection is successful,
-        stores the access token for further requests.
 
         Args:
             None
@@ -497,29 +491,17 @@ class newMobCont(tk.Frame):
         # Check if the row number is effectively an integer
         try:
             number_row = self.number_rows.get()
-        except:
-            number_row = 0
-
-        # Check if the column number is effectively an integer
-        try:
             number_col = self.number_cols.get()
-        except:
-            number_col = 0
-
-        # Check if the number of labels is effectively an integer
-        try:
             number_value = self.number.get()
-        except:
+        except Exception:
+            number_row = 0
+            number_col = 0
             number_value = 0
 
         # Check if output directory has been selected
         try:
-            if self.output_dir:
-                output = self.output_dir
-            else:
-                output = "empty"
-
-        except:
+            output = self.output_dir if self.output_dir else "empty"
+        except Exception:
             output = "empty"
 
         # Check that user entered the correct values
@@ -531,36 +513,7 @@ class newMobCont(tk.Frame):
             and number_value > 0
             and output != "empty"
         ):
-            # Retrieve the entered values
-            os.environ["USERNAME"] = self.username.get()
-            os.environ["PASSWORD"] = self.password.get()
-            os.environ["NUMBER_ROWS"] = str(self.number_rows.get())
-            os.environ["NUMBER_COLS"] = str(self.number_cols.get())
-            os.environ["NUMBER"] = str(self.number.get())
-            os.environ["OUTPUT_FOLDER"] = self.output_dir
-
-            # Define the Directus base URL
-            base_url = "http://directus.dbgi.org"
-
-            # Define the login endpoint URL
-            login_url = base_url + "/auth/login"
-            # Create a session object for making requests
-            session = requests.Session()
-            # Send a POST request to the login endpoint
-            response = session.post(login_url, json={"email": self.username.get(), "password": self.password.get()})
-            # Test if connection is successful
-            if response.status_code == 200:
-                # Stores the access token
-                data = response.json()["data"]
-                access_token = data["access_token"]
-                os.environ["ACCESS_TOKEN"] = str(access_token)
-                create_new_mob_cont.main(self.new_mob_cont_window, self.root, self.label)
-
-            # If connection to directus failed, informs the user that connection failed.
-            else:
-                self.label.config(
-                    text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
-                )
+            self.test_connection()
 
         elif (
             (not self.username.get() or not self.password.get())
@@ -575,35 +528,13 @@ class newMobCont(tk.Frame):
         elif (
             self.username.get()
             and self.password.get()
-            and number_row == 0
-            and number_col > 0
-            and number_value > 0
+            and (number_row == 0 or number_col == 0 or number_value == 0)
             and output != "empty"
         ):
             # If user enter a bad row number (for example text or 0)
-            self.label.config(text="Please provide a correct row number!", foreground="red")
-
-        elif (
-            self.username.get()
-            and self.password.get()
-            and number_row > 0
-            and number_col == 0
-            and number_value > 0
-            and output != "empty"
-        ):
-            # If user enter a bad column number (for example text or 0)
-            self.label.config(text="Please provide a correct column number!", foreground="red")
-
-        elif (
-            self.username.get()
-            and self.password.get()
-            and number_row > 0
-            and number_col > 0
-            and number_value == 0
-            and output != "empty"
-        ):
-            # If user enter a bad label number (for example text or 0)
-            self.label.config(text="Please provide a correct number of labels!", foreground="red")
+            self.label.config(
+                text="Please enter valid row, column or label numbers! (integers above 0)", foreground="red"
+            )
 
         elif (
             self.username.get()
@@ -619,6 +550,48 @@ class newMobCont(tk.Frame):
         else:
             # If there are multiple parameters errors
             self.label.config(text="Multiple parameters errors!", foreground="red")
+
+    def test_connection(self) -> None:
+        """
+        Tries to connect to directus and if connection is successful,
+        stores the access token for further requests.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
+        # Retrieve the entered values
+        os.environ["USERNAME"] = self.username.get()
+        os.environ["PASSWORD"] = self.password.get()
+        os.environ["NUMBER_ROWS"] = str(self.number_rows.get())
+        os.environ["NUMBER_COLS"] = str(self.number_cols.get())
+        os.environ["NUMBER"] = str(self.number.get())
+        os.environ["OUTPUT_FOLDER"] = self.output_dir
+
+        # Define the Directus base URL
+        base_url = "http://directus.dbgi.org"
+
+        # Define the login endpoint URL
+        login_url = base_url + "/auth/login"
+        # Create a session object for making requests
+        session = requests.Session()
+        # Send a POST request to the login endpoint
+        response = session.post(login_url, json={"email": self.username.get(), "password": self.password.get()})
+        # Test if connection is successful
+        if response.status_code == 200:
+            # Stores the access token
+            data = response.json()["data"]
+            access_token = data["access_token"]
+            os.environ["ACCESS_TOKEN"] = str(access_token)
+            create_new_mob_cont.main(self.new_mob_cont_window, self.root, self.label)
+
+        # If connection to directus failed, informs the user that connection failed.
+        else:
+            self.label.config(
+                text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
+            )
 
 
 class newStatCont(tk.Frame):
@@ -756,17 +729,13 @@ class newStatCont(tk.Frame):
         # Check if the number of labels is effectively an integer
         try:
             number_value = self.number.get()
-        except:
+        except Exception:
             number_value = 0
 
         # Check if output directory has been selected
         try:
-            if self.output_dir:
-                output = self.output_dir
-            else:
-                output = "empty"
-
-        except:
+            output = self.output_dir if self.output_dir else "empty"
+        except Exception:
             output = "empty"
 
         # Check that user entered the correct values
@@ -980,22 +949,14 @@ class csvLabels(tk.Frame):
 
         # Check if a CSV file has been selected
         try:
-            if self.csv_file:
-                csv = self.csv_file
-            else:
-                csv = "empty"
-
-        except:
+            csv = self.csv_file if self.csv_file else "empty"
+        except Exception:
             csv = "empty"
 
         # Check if output directory has been selected
         try:
-            if self.output_dir:
-                output = self.output_dir
-            else:
-                output = "empty"
-
-        except:
+            output = self.output_dir if self.output_dir else "empty"
+        except Exception:
             output = "empty"
 
         # Check that user entered the correct values
@@ -1220,22 +1181,14 @@ class newSite(tk.Frame):
 
         # Check if a country has been selected
         try:
-            if self.selected_country:
-                country = self.selected_country
-            else:
-                country = "empty"
-
-        except:
+            country = self.selected_country if self.selected_country else "empty"
+        except Exception:
             country = "empty"
 
         # Check if a country has been selected
         try:
-            if self.selected_university:
-                university = self.selected_university
-            else:
-                university = "empty"
-
-        except:
+            university = self.selected_university if self.selected_university else "empty"
+        except Exception:
             university = "empty"
 
         # Check that user entered the correct values
