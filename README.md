@@ -2,42 +2,68 @@
 
 [![Release](https://img.shields.io/github/v/release/edouardbruelhart/label-creator)](https://img.shields.io/github/v/release/edouardbruelhart/label-creator)
 [![Build status](https://img.shields.io/github/actions/workflow/status/edouardbruelhart/label-creator/main.yml?branch=main)](https://github.com/edouardbruelhart/label-creator/actions/workflows/main.yml?query=branch%3Amain)
-[![codecov](https://codecov.io/gh/edouardbruelhart/label-creator/branch/main/graph/badge.svg)](https://codecov.io/gh/edouardbruelhart/label-creator)
 [![Commit activity](https://img.shields.io/github/commit-activity/m/edouardbruelhart/label-creator)](https://img.shields.io/github/commit-activity/m/edouardbruelhart/label-creator)
-[![License](https://img.shields.io/github/license/edouardbruelhart/label-creator)](https://img.shields.io/github/license/edouardbruelhart/label-creator)
-
-A tool to generate labels for the DBGI project.
 
 - **Github repository**: <https://github.com/edouardbruelhart/label-creator/>
-- **Documentation** <https://edouardbruelhart.github.io/label-creator/>
+### Features
+Label Creator software permits to create all sorts of labels for the EMI project. 
 
-## Getting started with your project
+- It requests the Directus database, generates labels (field samples, mobile containers and static containers) asked by the user and reserves them. Then it formats them in pdf format to fit [avery L4732](https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) labels, ready to print.
 
-First, create a repository on GitHub with the same name as this project, and then run the following commands:
+- It also generates labels from a CSV table, without adding them to Directus. This mode is made to easily print provisory labels or labels that don't fit EMI requiremnts.
 
-```bash
-git init -b main
-git add .
-git commit -m "init commit"
-git remote add origin git@github.com:edouardbruelhart/label-creator.git
-git push -u origin main
-```
+- Finally it also permits to add universities to the Directus database in order to track samples across different institutions.
 
-Finally, install the environment and the pre-commit hooks with
+### How to use:
 
-```bash
-make install
-```
+- **Windows:** Simply download the `.exe` binary from the `Releases` tab and run it.
+- **Linux:** Download the `linux` binary from the `Releases` tab, then add execution rights:
 
-You are now ready to start development on your project!
-The CI/CD pipeline will be triggered when you open a pull request, merge to main, or when you create a new release.
+  ```bash
+  sudo chmod +x label_creator_vxx_linux
+  ```
 
-To finalize the set-up for publishing to PyPi or Artifactory, see [here](https://fpgmaas.github.io/cookiecutter-poetry/features/publishing/#set-up-for-pypi).
-For activating the automatic documentation with MkDocs, see [here](https://fpgmaas.github.io/cookiecutter-poetry/features/mkdocs/#enabling-the-documentation-on-github).
-To enable the code coverage reports, see [here](https://fpgmaas.github.io/cookiecutter-poetry/features/codecov/).
+  It will then be executable. If you want to run it from the command line, you can simply move it to a folder in the PATH (e.g., `/usr/local/bin`). Then you just need to type:
 
-## Releasing a new version
+  ```bash
+  label_creator_vxx_linux
+  ```
 
----
+  in bash.
 
-Repository initiated with [fpgmaas/cookiecutter-poetry](https://github.com/fpgmaas/cookiecutter-poetry).
+- **MacOS:** Download the `MacOS` binary from the `Releases` tab, then add execution rights:
+
+  ```bash
+  sudo chmod +x label_creator_vxx_macos
+  ```
+
+  It will then be executable. If you want to run it from the command line, you can simply move it to a folder in the PATH. Then you just need to type:
+
+  ```bash
+  label_creator_vxx_macos
+  ```
+
+  in the terminal.
+- **General method:** Clone the project, then set up an environment with `poetry`:
+
+  ```bash
+  poetry install
+  ```
+
+  Then activate the environment:
+
+  ```bash
+  poetry shell
+  ```
+
+  and run the `label_creator.py` script:
+
+  ```bash
+  python label_creator.py
+  ```
+
+  If you do not have poetry, you can install it with the command:
+
+  ```bash
+  pipx install poetry
+  ```
