@@ -2,7 +2,7 @@
 
 [![Release](https://img.shields.io/github/v/release/digital-botanical-gardens-initiative/label-creator)](https://img.shields.io/github/v/release/digital-botanical-gardens-initiative/label-creator)
 [![Build status](https://img.shields.io/github/actions/workflow/status/digital-botanical-gardens-initiative/label-creator/main.yml?branch=main)](https://github.com/digital-botanical-gardens-initiative/label-creator/actions/workflows/main.yml?query=branch%3Amain)
-[![Commit activity](https://img.shields.io/github/commit-activity/m/digital-botanical-gardens-initiativet/label-creator)](https://img.shields.io/github/commit-activity/m/digital-botanical-gardens-initiative/label-creator)
+[![Commit activity](https://img.shields.io/github/commit-activity/m/digital-botanical-gardens-initiative/label-creator)](https://img.shields.io/github/commit-activity/m/digital-botanical-gardens-initiative/label-creator)
 
 - **Github repository**: <https://github.com/digital-botanical-gardens-initiative/label-creator/>
 
