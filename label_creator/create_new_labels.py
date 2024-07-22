@@ -1,7 +1,7 @@
 import tkinter as tk
 
 
-def main(new_labels_window: tk.Toplevel, root: tk.Tk) -> None:
+def main(new_labels_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     import os
 
     import pandas as pd
@@ -26,11 +26,12 @@ def main(new_labels_window: tk.Toplevel, root: tk.Tk) -> None:
     # Define session
     session = requests.Session()
 
-    # Extract the last entry in the DBGI_SPL_ID column of the samples collection
+    # Extract the last label entry
     params = {"sort[]": f"-{field_name}"}
     response = session.get(request_url, params=params)
     last_value = response.json()["data"][0][field_name] if response.json()["data"] else "null"
 
+    # Retrieve the last number
     last_number = int(last_value.split("_")[1]) if last_value != "null" else 0
 
     # Define the first number of the list (last number + 1)
@@ -39,11 +40,13 @@ def main(new_labels_window: tk.Toplevel, root: tk.Tk) -> None:
     # Create template dataframe to reserve labels
     row_data = {"reserved": "true"}
 
+    # Create a dataframe with a row for each code requested by the user
     template = pd.DataFrame([row_data for _ in range(number)], columns=["reserved"])
 
     # Generate the container IDs
     template["field_sample_id"] = [f"{project}_" "{:06d}".format(first_number + i) for i in range(number)]
 
+    # Create request headers
     headers = {"Content-Type": "application/json"}
 
     # Create a list with the asked codes beginning with the first number
@@ -127,6 +130,6 @@ def main(new_labels_window: tk.Toplevel, root: tk.Tk) -> None:
         pdf.save()
         new_labels_window.destroy()
         root.destroy()
+
     else:
-        print("directus error, please try again.")
-        print(response.status_code)
+        label.config(text=f"The request failed: {response.json()['errors'][0]['message']}.", foreground="red")

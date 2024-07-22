@@ -1,7 +1,7 @@
 import tkinter as tk
 
 
-def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk) -> None:
+def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     import os
 
     import pandas as pd
@@ -11,7 +11,7 @@ def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk) -> None:
     from reportlab.lib.units import cm
     from reportlab.pdfgen import canvas
 
-    # Variables of the first window (generate from scratch)
+    # Load variables
     access_token = os.environ.get("ACCESS_TOKEN")
     number_row = int(str(os.environ.get("NUMBER_ROWS")))
     number_col = int(str(os.environ.get("NUMBER_COLS")))
@@ -38,6 +38,7 @@ def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk) -> None:
     response = session.get(request_url, params=params)
     last_value = response.json()["data"][0][field_name] if response.json()["data"] else "null"
 
+    # Retrieve the last label number
     last_number = int(last_value.split("_")[2]) if last_value != "null" else 0
 
     # Define the first number of the list (last number + 1)
@@ -46,11 +47,13 @@ def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk) -> None:
     # Create template dataframe to reserve labels
     row_data = {"reserved": "True"}
 
+    # Create a dataframe with a row for each requested code
     template = pd.DataFrame([row_data for _ in range(number)], columns=["reserved"])
 
     # Generate the container IDs
     template["container_id"] = [f"{container_prefix}" "{:06d}".format(first_number + i) for i in range(number)]
-
+    
+    # Create the request headers
     headers = {"Content-Type": "application/json"}
 
     # Create a list with the asked codes beginning with the first number
@@ -136,5 +139,4 @@ def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk) -> None:
         root.destroy()
 
     else:
-        print("directus error, please try again.")
-        print(response.status_code)
+        label.config(text=f"The request failed: {response.json()['errors'][0]['message']}.", foreground="red")

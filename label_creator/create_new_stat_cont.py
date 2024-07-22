@@ -1,7 +1,7 @@
 import tkinter as tk
 
 
-def main(new_stat_cont_window: tk.Toplevel, root: tk.Tk) -> None:
+def main(new_stat_cont_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     import os
 
     import pandas as pd
@@ -128,5 +128,4 @@ def main(new_stat_cont_window: tk.Toplevel, root: tk.Tk) -> None:
         new_stat_cont_window.destroy()
         root.destroy()
     else:
-        print("directus error, please try again.")
-        print(response.status_code)
+        label.config(text=f"The request failed: {response.json()['errors'][0]['message']}.", foreground="red")
