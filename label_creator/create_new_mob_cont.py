@@ -52,7 +52,7 @@ def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None
 
     # Generate the container IDs
     template["container_id"] = [f"{container_prefix}" "{:06d}".format(first_number + i) for i in range(number)]
-    
+
     # Create the request headers
     headers = {"Content-Type": "application/json"}
 

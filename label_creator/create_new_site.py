@@ -56,7 +56,9 @@ def main(new_site_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
 
     elif response.status_code == 400:
         # If request fails with code 400, informs user that the site is already in the database
-        label.config(text="Site already entered in the database. You can add another site if you want.", foreground="red")
+        label.config(
+            text="Site already entered in the database. You can add another site if you want.", foreground="red"
+        )
 
     else:
         label.config(text=f"The request failed: {response.json()['errors'][0]['message']}.", foreground="red")

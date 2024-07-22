@@ -346,6 +346,7 @@ class newLabels(tk.Frame):
             # If there are multiple parameters errors
             self.label.config(text="Multiple parameters errors!", foreground="red")
 
+
 class newMobCont(tk.Frame):
     def __init__(self, new_mob_cont_window: tk.Toplevel, root: tk.Tk):
         """
@@ -529,7 +530,6 @@ class newMobCont(tk.Frame):
             and number_value > 0
             and output != "empty"
         ):
-
             # Retrieve the entered values
             os.environ["USERNAME"] = self.username.get()
             os.environ["PASSWORD"] = self.password.get()
@@ -618,6 +618,7 @@ class newMobCont(tk.Frame):
         else:
             # If there are multiple parameters errors
             self.label.config(text="Multiple parameters errors!", foreground="red")
+
 
 class newStatCont(tk.Frame):
     def __init__(self, new_stat_cont_window: tk.Toplevel, root: tk.Tk):
@@ -719,7 +720,6 @@ class newStatCont(tk.Frame):
     def open_link(self, event: Event) -> None:
         webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
 
-    
     # Function to select and retrieve output path
     def output_folder(self) -> None:
         """
@@ -769,13 +769,7 @@ class newStatCont(tk.Frame):
             output = "empty"
 
         # Check that user entered the correct values
-        if (
-            self.username.get()
-            and self.password.get()
-            and number_value > 0
-            and output != "empty"
-        ):
-
+        if self.username.get() and self.password.get() and number_value > 0 and output != "empty":
             # Retrieve the entered values
             os.environ["USERNAME"] = self.username.get()
             os.environ["PASSWORD"] = self.password.get()
@@ -805,29 +799,15 @@ class newStatCont(tk.Frame):
                     text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
                 )
 
-        elif (
-            (not self.username.get() or not self.password.get())
-            and number_value > 0
-            and output != "empty"
-        ):
+        elif (not self.username.get() or not self.password.get()) and number_value > 0 and output != "empty":
             # If user didn't enter username or password
             self.label.config(text="Please provide correct Directus credentials!", foreground="red")
 
-        elif (
-            self.username.get()
-            and self.password.get()
-            and number_value == 0
-            and output != "empty"
-        ):
+        elif self.username.get() and self.password.get() and number_value == 0 and output != "empty":
             # If user enter a bad label number (for example text or 0)
             self.label.config(text="Please provide a correct number of labels!", foreground="red")
 
-        elif (
-            self.username.get()
-            and self.password.get()
-            and number_value > 0
-            and output == "empty"
-        ):
+        elif self.username.get() and self.password.get() and number_value > 0 and output == "empty":
             # If user didn't select an output dir
             self.label.config(text="Please select the output directory!", foreground="red")
 
@@ -1018,12 +998,7 @@ class csvLabels(tk.Frame):
             output = "empty"
 
         # Check that user entered the correct values
-        if (
-            (self.parambig.get() != 0 or self.paramsmall.get() != 0)
-            and csv != "empty"
-            and output != "empty"
-        ):
-                
+        if (self.parambig.get() != 0 or self.paramsmall.get() != 0) and csv != "empty" and output != "empty":
             # Add size parameters to environment
             os.environ["PARAMBIG"] = str(self.parambig.get())
             os.environ["PARAMSMALL"] = str(self.paramsmall.get())
@@ -1031,28 +1006,15 @@ class csvLabels(tk.Frame):
             os.environ["OUTPUT_FOLDER"] = self.output_dir
             create_labels_csv.main(self.csv_labels_window, self.root, self.label)
 
-        elif (
-            (self.parambig.get() != 0 or self.paramsmall.get() != 0)
-            and csv == "empty"
-            and output != "empty"
-        ):
+        elif (self.parambig.get() != 0 or self.paramsmall.get() != 0) and csv == "empty" and output != "empty":
             # If no CSV selected
             self.label.config(text="Please select a CSV!", foreground="red")
 
-        elif (
-            (self.parambig.get() != 0 or self.paramsmall.get() != 0)
-            and csv != "empty"
-            and output == "empty"
-        ):
+        elif (self.parambig.get() != 0 or self.paramsmall.get() != 0) and csv != "empty" and output == "empty":
             # If no output dir selected
             self.label.config(text="Please select the output directory!", foreground="red")
 
-        elif (
-            self.parambig.get() == 0
-            and self.paramsmall.get() == 0
-            and csv != "empty"
-            and output != "empty"
-        ):
+        elif self.parambig.get() == 0 and self.paramsmall.get() == 0 and csv != "empty" and output != "empty":
             # If no label format selected
             self.label.config(text="Please select at least one label format!", foreground="red")
 
@@ -1165,7 +1127,7 @@ class newSite(tk.Frame):
             # Back to main button
             button_back = tk.Button(frame_submit, text="Back to Main Page", width=17, command=self.on_exit)
             button_back.pack(side="right")
-        
+
         # If API request to Hipo fails, informs the user
         else:
             self.label.config(text="No access to Hipo API, please verify your internet connection.", foreground="red")
@@ -1276,13 +1238,7 @@ class newSite(tk.Frame):
             university = "empty"
 
         # Check that user entered the correct values
-        if (
-            self.username.get()
-            and self.password.get()
-            and country != "empty"
-            and university != "empty"
-        ):
-
+        if self.username.get() and self.password.get() and country != "empty" and university != "empty":
             # Retrieve the entered values
             os.environ["USERNAME"] = self.username.get()
             os.environ["PASSWORD"] = self.password.get()
@@ -1316,33 +1272,22 @@ class newSite(tk.Frame):
                     text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
                 )
 
-        elif (
-            (not self.username.get() or not self.password.get())
-            and country != "empty"
-            and university != "empty"
-        ):
+        elif (not self.username.get() or not self.password.get()) and country != "empty" and university != "empty":
             # If user didn't enter username or password
             self.label.config(text="Please provide correct Directus credentials!", foreground="red")
 
-        elif (
-            self.username.get()
-            and self.password.get()
-            and country == "empty"
-        ):
+        elif self.username.get() and self.password.get() and country == "empty":
             # If user didn't choose a country
             self.label.config(text="Please select a country!", foreground="red")
 
-        elif (
-            self.username.get()
-            and self.password.get()
-            and university == "empty"
-        ):
+        elif self.username.get() and self.password.get() and university == "empty":
             # If user didn't choose a university
             self.label.config(text="Please select a university!", foreground="red")
 
         else:
             # If there are multiple parameters errors
             self.label.config(text="Multiple parameters errors!", foreground="red")
+
 
 # Create the main window
 root = tk.Tk()
