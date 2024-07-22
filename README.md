@@ -5,8 +5,10 @@
 [![Commit activity](https://img.shields.io/github/commit-activity/m/edouardbruelhart/label-creator)](https://img.shields.io/github/commit-activity/m/edouardbruelhart/label-creator)
 
 - **Github repository**: <https://github.com/edouardbruelhart/label-creator/>
+
 ### Features
-Label Creator software permits to create all sorts of labels for the EMI project. 
+
+Label Creator software permits to create all sorts of labels for the EMI project.
 
 - It requests the Directus database, generates labels (field samples, mobile containers and static containers) asked by the user and reserves them. Then it formats them in pdf format to fit [avery L4732](https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) labels, ready to print.
 
@@ -44,6 +46,7 @@ Label Creator software permits to create all sorts of labels for the EMI project
   ```
 
   in the terminal.
+
 - **General method:** Clone the project, then set up an environment with `poetry`:
 
   ```bash
