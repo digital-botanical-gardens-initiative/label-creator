@@ -19,7 +19,7 @@ def main(new_stat_cont_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> Non
 
     # Define the Directus URLs
     field_name = "container_id"
-    base_url = "http://directus.dbgi.org"
+    base_url = "https://emi-collection.unifr.ch/directus"
     collection_url = base_url + "/items/Static_Container"
     request_url = collection_url + f"?filter[{field_name}][_starts_with]={container_prefix}_&&limit=1"
 

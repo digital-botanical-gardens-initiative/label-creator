@@ -160,7 +160,7 @@ class newLabels(tk.Frame):
         entry_password.pack()
 
         # Extract the project names from directus
-        collection_url = "http://directus.dbgi.org/items/EMI_codes"
+        collection_url = "https://emi-collection.unifr.ch/directus/items/EMI_codes"
         column = "emi_code"
         params = {"sort[]": f"{column}"}
         session = requests.Session()
@@ -278,7 +278,7 @@ class newLabels(tk.Frame):
             os.environ["PROJECT"] = self.project.get()
 
             # Define the Directus base URL
-            base_url = "http://directus.dbgi.org"
+            base_url = "https://emi-collection.unifr.ch/directus"
 
             # Define the login endpoint URL
             login_url = base_url + "/auth/login"
@@ -571,7 +571,7 @@ class newMobCont(tk.Frame):
         os.environ["OUTPUT_FOLDER"] = self.output_dir
 
         # Define the Directus base URL
-        base_url = "http://directus.dbgi.org"
+        base_url = "https://emi-collection.unifr.ch/directus"
 
         # Define the login endpoint URL
         login_url = base_url + "/auth/login"
@@ -747,7 +747,7 @@ class newStatCont(tk.Frame):
             os.environ["OUTPUT_FOLDER"] = self.output_dir
 
             # Define the Directus base URL
-            base_url = "http://directus.dbgi.org"
+            base_url = "https://emi-collection.unifr.ch/directus"
 
             # Define the login endpoint URL
             login_url = base_url + "/auth/login"
@@ -1204,7 +1204,7 @@ class newSite(tk.Frame):
             os.environ["DOMAINS"] = str(self.subset["domains"].values[0])
 
             # Define the Directus base URL
-            base_url = "http://directus.dbgi.org"
+            base_url = "https://emi-collection.unifr.ch/directus"
 
             # Define the login endpoint URL
             login_url = base_url + "/auth/login"

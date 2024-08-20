@@ -26,7 +26,7 @@ def main(new_mob_cont_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None
 
     # Define the Directus URLs
     field_name = "container_id"
-    base_url = "http://directus.dbgi.org"
+    base_url = "https://emi-collection.unifr.ch/directus"
     collection_url = base_url + "/items/Mobile_Container"
     request_url = collection_url + f"?filter[{field_name}][_starts_with]={container_prefix}&&limit=1"
 

@@ -17,7 +17,7 @@ def main(new_site_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     access_token = os.environ.get("ACCESS_TOKEN")
 
     # Define the Directus URLs
-    base_url = "http://directus.dbgi.org"
+    base_url = "https://emi-collection.unifr.ch/directus"
     collection_url = base_url + "/items/University"
 
     # Create a session object for making requests
