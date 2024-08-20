@@ -32,41 +32,64 @@ class MainPage(tk.Frame):
         # Create the tk page
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
-        # Create widgets for the main page
+        # Send a request to github to know if this version is the las one
+        release_url = "https://api.github.com/repos/digital-botanical-gardens-initiative/label-creator/releases/latest"
+        session = requests.Session()
+        response = session.get(release_url)
+        data = response.json()["tag_name"]
+        tag = float(str.replace(data, "v", ""))
 
-        # Create GUI elements for labels
-        label_labels = tk.Label(self, text="Create labels")
-        label_labels.pack()
+        if tag <= 1.1:
+            # Create GUI elements for labels
+            label_labels = tk.Label(self, text="Create labels")
+            label_labels.pack()
 
-        button_new_labels = tk.Button(self, text="Generate labels from scratch", width=40, command=self.open_new_labels)
-        button_new_labels.pack()
+            button_new_labels = tk.Button(
+                self, text="Generate labels from scratch", width=40, command=self.open_new_labels
+            )
+            button_new_labels.pack()
 
-        button_mobile_container = tk.Button(
-            self, text="Generate mobile containers labels from scratch", width=40, command=self.open_mobile_container
-        )
-        button_mobile_container.pack()
+            button_mobile_container = tk.Button(
+                self,
+                text="Generate mobile containers labels from scratch",
+                width=40,
+                command=self.open_mobile_container,
+            )
+            button_mobile_container.pack()
 
-        button_static_container = tk.Button(
-            self, text="Generate static containers labels from scratch", width=40, command=self.open_static_container
-        )
-        button_static_container.pack()
+            button_static_container = tk.Button(
+                self,
+                text="Generate static containers labels from scratch",
+                width=40,
+                command=self.open_static_container,
+            )
+            button_static_container.pack()
 
-        button_existing = tk.Button(self, text="Print labels from a CSV", width=40, command=self.open_csv_labels)
-        button_existing.pack()
+            button_existing = tk.Button(self, text="Print labels from a CSV", width=40, command=self.open_csv_labels)
+            button_existing.pack()
 
-        # Add some space to discriminate label generation from adding a new site
-        label_space = tk.Label(self, text="")
-        label_space.pack()
+            # Add some space to discriminate label generation from adding a new site
+            label_space = tk.Label(self, text="")
+            label_space.pack()
 
-        label_space = tk.Label(self, text="")
-        label_space.pack()
+            label_space = tk.Label(self, text="")
+            label_space.pack()
 
-        # Create GUI elements to add a new site
-        label_new_site = tk.Label(self, text="Add a new site to the database")
-        label_new_site.pack()
+            # Create GUI elements to add a new site
+            label_new_site = tk.Label(self, text="Add a new site to the database")
+            label_new_site.pack()
 
-        button_new_site = tk.Button(self, text="Add a new site", width=40, command=self.open_new_site)
-        button_new_site.pack()
+            button_new_site = tk.Button(self, text="Add a new site", width=40, command=self.open_new_site)
+            button_new_site.pack()
+        else:
+            # Create GUI elements to ask user to download the latest version
+            label_labels = tk.Label(self, text="A new version is available, please download it.")
+            label_labels.pack()
+
+            button_new_labels = tk.Button(
+                self, text="Download latest version", width=40, command=self.download_last_version
+            )
+            button_new_labels.pack()
 
     def open_new_labels(self) -> None:
         # Create a new Toplevel window for the new labels
@@ -102,6 +125,11 @@ class MainPage(tk.Frame):
         new_site_window.title("Add a new site")
         # Launches the corresponding class
         newSite(new_site_window, root)
+
+    # Function that redirects user to the last software version
+    def download_last_version(self) -> None:
+        url = "https://github.com/digital-botanical-gardens-initiative/label-creator/releases/latest"
+        webbrowser.open(url)
 
 
 # Class to create new labels
