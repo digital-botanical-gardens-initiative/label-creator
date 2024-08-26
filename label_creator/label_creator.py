@@ -38,21 +38,21 @@ class MainPage(tk.Frame):
         data = response.json()["tag_name"]
         tag = float(str.replace(data, "v", ""))
 
-        if tag <= 1.1:
+        if tag <= 2.0:
             # Create GUI elements for labels
             label_labels = tk.Label(self, text="Create labels")
             label_labels.pack()
 
             button_new_labels = tk.Button(
-                self, text="Generate sample labels from scratch", width=40, command=self.open_new_labels
+                self, text="Generate sample labels", width=40, command=self.open_sample_labels
             )
             button_new_labels.pack()
 
             button_mobile_container = tk.Button(
                 self,
-                text="Generate containers labels from scratch",
+                text="Generate containers labels",
                 width=40,
-                command=self.open_mobile_container,
+                command=self.open_container_labels,
             )
             button_mobile_container.pack()
 
@@ -82,24 +82,24 @@ class MainPage(tk.Frame):
             )
             button_new_labels.pack()
 
-    def open_new_labels(self) -> None:
+    def open_sample_labels(self) -> None:
         # Create a new Toplevel window for the new labels
-        new_labels_window = tk.Toplevel(root)
-        new_labels_window.title("Generate new labels")
+        sample_labels_window = tk.Toplevel(root)
+        sample_labels_window.title("Generate sample labels")
         # Launches the corresponding class
-        sampleLabels(new_labels_window, root)
+        sampleLabels(sample_labels_window, root)
 
-    def open_mobile_container(self) -> None:
+    def open_container_labels(self) -> None:
         # Create a new Toplevel window for the mobile containers
-        new_mob_cont_window = tk.Toplevel(root)
-        new_mob_cont_window.title("Generate new mobile containers labels")
+        container_labels_window = tk.Toplevel(root)
+        container_labels_window.title("Generate containers labels")
         # Launches the corresponding class
-        containerLabels(new_mob_cont_window, root)
+        containerLabels(container_labels_window, root)
 
     def open_csv_labels(self) -> None:
         # Create a new Toplevel window for the labels from CSV
         csv_labels_window = tk.Toplevel(root)
-        csv_labels_window.title("Generate labels from CSV")
+        csv_labels_window.title("Generate labels from a CSV")
         # Launches the corresponding class
         csvLabels(csv_labels_window, root)
 
@@ -118,12 +118,12 @@ class MainPage(tk.Frame):
 
 # Class to create new labels
 class sampleLabels(tk.Frame):
-    def __init__(self, new_labels_window: tk.Toplevel, root: tk.Tk):
+    def __init__(self, sample_labels_window: tk.Toplevel, root: tk.Tk):
         """
         Initializes an instance of the class.
 
         Args:
-            csv_batch_window(tk.Toplevel): The parent widget where this frame will be placed.
+            sample_labels_window(tk.Toplevel): The parent widget where this frame will be placed.
             root(tk.Tk): The root window to perform actions on it.
 
         Returns:
@@ -131,49 +131,53 @@ class sampleLabels(tk.Frame):
         """
 
         # Makes tk elements available across functions
-        self.new_labels_window = new_labels_window
+        self.sample_labels_window = sample_labels_window
         self.root = root
 
         # Hide main page
         self.root.withdraw()
 
         # Associates the close button to a specific action managed by on_exit function
-        self.new_labels_window.protocol("WM_DELETE_WINDOW", self.on_exit)
+        self.sample_labels_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
         # Create variables to store the user entered parameters
         self.username = tk.StringVar(None)
         self.password = tk.StringVar(None)
         self.number = tk.IntVar(None)
         self.project = tk.StringVar(None)
+        self.label_size = tk.IntVar(None)
 
         # Create GUI elements for this class
-        frame_info = tk.Frame(self.new_labels_window)
+
+        # Create informations frame
+        frame_info = tk.Frame(self.sample_labels_window)
         frame_info.pack(pady=(10, 20))
 
-        # Create widgets for the main page
+        # Create informations GUI
         self.label = tk.Label(
             frame_info,
-            text="Generates avery L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) labels and reserves the codes in directus",
+            text="Generates avery L4736 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25), L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) or L4731 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25) labels and reserves the codes in directus",
             cursor="hand2",
         )
         self.label.pack()
+
         # Makes the link clickable
         self.label.bind("<Button-1>", self.open_link)
 
         # Create text entry fields
-        label_username = tk.Label(self.new_labels_window, text="Directus username:")
+        label_username = tk.Label(self.sample_labels_window, text="Directus username:")
         label_username.pack()
-        entry_username = tk.Entry(self.new_labels_window, textvariable=self.username)
+        entry_username = tk.Entry(self.sample_labels_window, textvariable=self.username)
         entry_username.pack()
 
-        label_password = tk.Label(self.new_labels_window, text="Directus password:")
+        label_password = tk.Label(self.sample_labels_window, text="Directus password:")
         label_password.pack()
-        entry_password = tk.Entry(self.new_labels_window, textvariable=self.password, show="*")
+        entry_password = tk.Entry(self.sample_labels_window, textvariable=self.password, show="*")
         entry_password.pack()
 
         # Extract the project names from directus
-        collection_url = "https://emi-collection.unifr.ch/directus/items/EMI_codes"
-        column = "emi_code"
+        collection_url = "https://emi-collection.unifr.ch/directus/items/Projects"
+        column = "project_id"
         params = {"sort[]": f"{column}"}
         session = requests.Session()
         response = session.get(collection_url, params=params)
@@ -181,25 +185,45 @@ class sampleLabels(tk.Frame):
         project_names = [item[column] for item in data]
 
         # Choose the project
-        project_label = tk.Label(self.new_labels_window, text="Choose your project:")
+        project_label = tk.Label(self.sample_labels_window, text="Choose your project:")
         project_label.pack()
-        dropdown_project = tk.OptionMenu(self.new_labels_window, self.project, *project_names)
+        dropdown_project = tk.OptionMenu(self.sample_labels_window, self.project, *project_names)
         dropdown_project.pack()
 
+        # Create radio buttons to select the size of labels
+        self.label_size.set(2)
+        radio_big = tk.Radiobutton(
+            self.sample_labels_window, text="big labels (avery L4736)", variable=self.label_size, value=1
+        )
+        radio_big.pack()
+
+        radio_medium = tk.Radiobutton(
+            self.sample_labels_window, text="medium labels (avery L4732)", variable=self.label_size, value=2
+        )
+        radio_medium.pack()
+
+        radio_small = tk.Radiobutton(
+            self.sample_labels_window, text="small labels (avery L4731)", variable=self.label_size, value=3
+        )
+        radio_small.pack()
+
         # Number of labels
-        number_label = tk.Label(self.new_labels_window, text="Number of labels:")
+        number_label = tk.Label(self.sample_labels_window, text="Number of labels:")
         number_label.pack()
-        number_entry = tk.Entry(self.new_labels_window, textvariable=self.number)
+        number_entry = tk.Entry(self.sample_labels_window, textvariable=self.number)
         self.number.set(80)
         number_entry.pack()
 
         # Asks where to store the pdf
-        output_label = tk.Label(self.new_labels_window, text="Select pdf output path:")
+        output_label = tk.Label(self.sample_labels_window, text="Select pdf output path:")
         output_label.pack()
-        self.output_button = tk.Button(self.new_labels_window, text="select path", width=17, command=self.output_folder)
+        self.output_button = tk.Button(
+            self.sample_labels_window, text="select path", width=17, command=self.output_folder
+        )
         self.output_button.pack()
 
-        frame_submit = tk.Frame(self.new_labels_window)
+        # Create frame for action buttons
+        frame_submit = tk.Frame(self.sample_labels_window)
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
@@ -222,7 +246,7 @@ class sampleLabels(tk.Frame):
             None
         """
         # Destroy the actual page and reopen the main page
-        self.new_labels_window.destroy()
+        self.sample_labels_window.destroy()
         self.root.deiconify()
 
     # Function to open the link to avery labels
@@ -288,6 +312,7 @@ class sampleLabels(tk.Frame):
             os.environ["NUMBER"] = str(self.number.get())
             os.environ["OUTPUT_FOLDER"] = self.output_dir
             os.environ["PROJECT"] = self.project.get()
+            os.environ["LABEL_SIZE"] = str(self.label_size.get())
 
             # Define the Directus base URL
             base_url = "https://emi-collection.unifr.ch/directus"
@@ -305,13 +330,11 @@ class sampleLabels(tk.Frame):
                 access_token = data["access_token"]
                 os.environ["ACCESS_TOKEN"] = str(access_token)
                 # Launch the script to perform the labels creation
-                sample_labels.main(self.new_labels_window, self.root, self.label)
+                sample_labels.main(self.sample_labels_window, self.root, self.label)
 
             # If connection to directus failed, informs the user that connection failed.
             else:
-                self.label.config(
-                    text="Connexion to directus failed, verify your credentials/vpn connection!", foreground="red"
-                )
+                self.label.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
 
         elif (
             (not self.username.get() or not self.password.get())
@@ -350,19 +373,19 @@ class sampleLabels(tk.Frame):
             and not self.project.get()
         ):
             # If user didn't select an EMI project
-            self.label.config(text="Please select an EMI code!", foreground="red")
+            self.label.config(text="Please select an EMI project!", foreground="red")
         else:
             # If there are multiple parameters errors
             self.label.config(text="Multiple parameters errors!", foreground="red")
 
 
 class containerLabels(tk.Frame):
-    def __init__(self, new_mob_cont_window: tk.Toplevel, root: tk.Tk):
+    def __init__(self, container_labels_window: tk.Toplevel, root: tk.Tk):
         """
         Initializes an instance of the class.
 
         Args:
-            new_mob_cont_window(tk.Toplevel): The parent widget where this frame will be placed.
+            container_labels_window(tk.Toplevel): The parent widget where this frame will be placed.
             root(tk.Tk): The root window to perform actions on it.
 
         Returns:
@@ -370,30 +393,29 @@ class containerLabels(tk.Frame):
         """
 
         # Make tk elements available across functions
-        self.new_mob_cont_window = new_mob_cont_window
+        self.container_labels_window = container_labels_window
         self.root = root
 
         # Hide main page
         self.root.withdraw()
 
         # Define behaviour of the closing button with function on_exit
-        self.new_mob_cont_window.protocol("WM_DELETE_WINDOW", self.on_exit)
+        self.container_labels_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
         # Create a variable to store the entered text
         self.username = tk.StringVar(None)
         self.password = tk.StringVar(None)
-        self.number_rows = tk.IntVar(None)
-        self.number_cols = tk.IntVar(None)
+        self.label_size = tk.IntVar(None)
         self.number = tk.IntVar(None)
 
         # Create a frame for the informations
-        frame_info = tk.Frame(self.new_mob_cont_window)
+        frame_info = tk.Frame(self.container_labels_window)
         frame_info.pack(pady=(10, 20))
 
         # Adds the information label
         self.label = tk.Label(
             frame_info,
-            text="Generates avery L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) mobile container labels and reserves the codes in directus",
+            text="Generates avery L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) container labels and reserves the codes in directus",
             cursor="hand2",
         )
         self.label.pack()
@@ -402,45 +424,50 @@ class containerLabels(tk.Frame):
         self.label.bind("<Button-1>", self.open_link)
 
         # Create text entry fields
-        label_username = tk.Label(self.new_mob_cont_window, text="Directus username:")
+        label_username = tk.Label(self.container_labels_window, text="Directus username:")
         label_username.pack()
-        entry_username = tk.Entry(self.new_mob_cont_window, textvariable=self.username)
+        entry_username = tk.Entry(self.container_labels_window, textvariable=self.username)
         entry_username.pack()
 
-        label_password = tk.Label(self.new_mob_cont_window, text="Directus password:")
+        label_password = tk.Label(self.container_labels_window, text="Directus password:")
         label_password.pack()
-        entry_password = tk.Entry(self.new_mob_cont_window, textvariable=self.password, show="*")
+        entry_password = tk.Entry(self.container_labels_window, textvariable=self.password, show="*")
         entry_password.pack()
 
-        # Number of rows
-        number_rows = tk.Label(self.new_mob_cont_window, text="Container's rows number:")
-        number_rows.pack()
-        number_entry_rows = tk.Entry(self.new_mob_cont_window, textvariable=self.number_rows)
-        number_entry_rows.pack()
+        # Create radio buttons to select the type of labels
+        self.label_size.set(2)
+        radio_big = tk.Radiobutton(
+            self.container_labels_window, text="big labels (avery L4736)", variable=self.label_size, value=1
+        )
+        radio_big.pack()
 
-        # Number of columns
-        number_columns = tk.Label(self.new_mob_cont_window, text="Container's columns number:")
-        number_columns.pack()
-        number_entry_columns = tk.Entry(self.new_mob_cont_window, textvariable=self.number_cols)
-        number_entry_columns.pack()
+        radio_medium = tk.Radiobutton(
+            self.container_labels_window, text="medium labels (avery L4732)", variable=self.label_size, value=2
+        )
+        radio_medium.pack()
+
+        radio_small = tk.Radiobutton(
+            self.container_labels_window, text="small labels (avery L4731)", variable=self.label_size, value=3
+        )
+        radio_small.pack()
 
         # Number of labels
-        number_label = tk.Label(self.new_mob_cont_window, text="Number of labels:")
+        number_label = tk.Label(self.container_labels_window, text="Number of labels:")
         number_label.pack()
-        number_entry = tk.Entry(self.new_mob_cont_window, textvariable=self.number)
+        number_entry = tk.Entry(self.container_labels_window, textvariable=self.number)
         self.number.set(80)
         number_entry.pack()
 
         # Asks where to store the pdf
-        output_label = tk.Label(self.new_mob_cont_window, text="Select pdf output path:")
+        output_label = tk.Label(self.container_labels_window, text="Select pdf output path:")
         output_label.pack()
         self.output_button = tk.Button(
-            self.new_mob_cont_window, text="select path", width=17, command=self.output_folder
+            self.container_labels_window, text="select path", width=17, command=self.output_folder
         )
         self.output_button.pack()
 
         # Frame for action buttons
-        frame_submit = tk.Frame(self.new_mob_cont_window)
+        frame_submit = tk.Frame(self.container_labels_window)
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
@@ -463,7 +490,7 @@ class containerLabels(tk.Frame):
             None
         """
         # Destroy actual page and displays the main page
-        self.new_mob_cont_window.destroy()
+        self.container_labels_window.destroy()
         self.root.deiconify()
 
     # Function to open the labels link when user clicks ont the information label
@@ -502,12 +529,8 @@ class containerLabels(tk.Frame):
 
         # Check if the row number is effectively an integer
         try:
-            number_row = self.number_rows.get()
-            number_col = self.number_cols.get()
             number_value = self.number.get()
         except Exception:
-            number_row = 0
-            number_col = 0
             number_value = 0
 
         # Check if output directory has been selected
@@ -517,45 +540,14 @@ class containerLabels(tk.Frame):
             output = "empty"
 
         # Check that user entered the correct values
-        if (
-            self.username.get()
-            and self.password.get()
-            and number_row > 0
-            and number_col > 0
-            and number_value > 0
-            and output != "empty"
-        ):
+        if self.username.get() and self.password.get() and number_value > 0 and output != "empty":
             self.test_connection()
 
-        elif (
-            (not self.username.get() or not self.password.get())
-            and number_row > 0
-            and number_col > 0
-            and number_value > 0
-            and output != "empty"
-        ):
+        elif (not self.username.get() or not self.password.get()) and number_value > 0 and output != "empty":
             # If user didn't enter username or password
             self.label.config(text="Please provide correct Directus credentials!", foreground="red")
 
-        elif (
-            self.username.get()
-            and self.password.get()
-            and (number_row == 0 or number_col == 0 or number_value == 0)
-            and output != "empty"
-        ):
-            # If user enter a bad row number (for example text or 0)
-            self.label.config(
-                text="Please enter valid row, column or label numbers! (integers above 0)", foreground="red"
-            )
-
-        elif (
-            self.username.get()
-            and self.password.get()
-            and number_row > 0
-            and number_col > 0
-            and number_value > 0
-            and output == "empty"
-        ):
+        elif self.username.get() and self.password.get() and number_value > 0 and output == "empty":
             # If user didn't select an output dir
             self.label.config(text="Please select the output directory!", foreground="red")
 
@@ -577,8 +569,7 @@ class containerLabels(tk.Frame):
         # Retrieve the entered values
         os.environ["USERNAME"] = self.username.get()
         os.environ["PASSWORD"] = self.password.get()
-        os.environ["NUMBER_ROWS"] = str(self.number_rows.get())
-        os.environ["NUMBER_COLS"] = str(self.number_cols.get())
+        os.environ["LABEL_SIZE"] = str(self.label_size.get())
         os.environ["NUMBER"] = str(self.number.get())
         os.environ["OUTPUT_FOLDER"] = self.output_dir
 
@@ -597,13 +588,11 @@ class containerLabels(tk.Frame):
             data = response.json()["data"]
             access_token = data["access_token"]
             os.environ["ACCESS_TOKEN"] = str(access_token)
-            container_labels.main(self.new_mob_cont_window, self.root, self.label)
+            container_labels.main(self.container_labels_window, self.root, self.label)
 
         # If connection to directus failed, informs the user that connection failed.
         else:
-            self.label.config(
-                text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
-            )
+            self.label.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
 
 
 class csvLabels(tk.Frame):
@@ -632,8 +621,7 @@ class csvLabels(tk.Frame):
         # Create a variable to store the entered text
         self.number_ext = tk.StringVar(None)
         self.number_inj = tk.StringVar(None)
-        self.parambig = tk.IntVar(None)
-        self.paramsmall = tk.IntVar(None)
+        self.label_size = tk.IntVar(None)
 
         # Create a frame for the informations
         frame_info = tk.Frame(self.csv_labels_window)
@@ -642,7 +630,7 @@ class csvLabels(tk.Frame):
         # Adds the information label
         self.label = tk.Label(
             frame_info,
-            text="Generates avery L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) or L4731 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25) labels from a CSV",
+            text="Generates avery L4736 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25), L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) or L4731 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25) labels from a CSV",
             cursor="hand2",
         )
         self.label.pack()
@@ -677,14 +665,22 @@ class csvLabels(tk.Frame):
         self.output_button = tk.Button(self.csv_labels_window, text="select path", command=self.output_folder)
         self.output_button.pack()
 
-        # Create tickboxes to select the type of labels
-        check_big = tk.Checkbutton(self.csv_labels_window, text="big labels (avery L4732)", variable=self.parambig)
-        check_big.pack()
-
-        check_small = tk.Checkbutton(
-            self.csv_labels_window, text="small labels (avery L4731)", variable=self.paramsmall
+        # Create radio buttons to select the type of labels
+        self.label_size.set(2)
+        radio_big = tk.Radiobutton(
+            self.csv_labels_window, text="big labels (avery L4736)", variable=self.label_size, value=1
         )
-        check_small.pack()
+        radio_big.pack()
+
+        radio_medium = tk.Radiobutton(
+            self.csv_labels_window, text="medium labels (avery L4732)", variable=self.label_size, value=2
+        )
+        radio_medium.pack()
+
+        radio_small = tk.Radiobutton(
+            self.csv_labels_window, text="small labels (avery L4731)", variable=self.label_size, value=3
+        )
+        radio_small.pack()
 
         # Frame for action buttons
         frame_submit = tk.Frame(self.csv_labels_window)
@@ -780,25 +776,20 @@ class csvLabels(tk.Frame):
             output = "empty"
 
         # Check that user entered the correct values
-        if (self.parambig.get() != 0 or self.paramsmall.get() != 0) and csv != "empty" and output != "empty":
+        if csv != "empty" and output != "empty":
             # Add size parameters to environment
-            os.environ["PARAMBIG"] = str(self.parambig.get())
-            os.environ["PARAMSMALL"] = str(self.paramsmall.get())
+            os.environ["LABEL_SIZE"] = str(self.label_size.get())
             os.environ["FILE_PATH"] = self.csv_file
             os.environ["OUTPUT_FOLDER"] = self.output_dir
             csv_labels.main(self.csv_labels_window, self.root, self.label)
 
-        elif (self.parambig.get() != 0 or self.paramsmall.get() != 0) and csv == "empty" and output != "empty":
+        elif csv == "empty" and output != "empty":
             # If no CSV selected
             self.label.config(text="Please select a CSV!", foreground="red")
 
-        elif (self.parambig.get() != 0 or self.paramsmall.get() != 0) and csv != "empty" and output == "empty":
+        elif csv != "empty" and output == "empty":
             # If no output dir selected
             self.label.config(text="Please select the output directory!", foreground="red")
-
-        elif self.parambig.get() == 0 and self.paramsmall.get() == 0 and csv != "empty" and output != "empty":
-            # If no label format selected
-            self.label.config(text="Please select at least one label format!", foreground="red")
 
         else:
             # If there are multiple parameters errors
@@ -811,7 +802,7 @@ class newSite(tk.Frame):
         Initializes an instance of the class.
 
         Args:
-            csv_labels_window(tk.Toplevel): The parent widget where this frame will be placed.
+            new_site_window(tk.Toplevel): The parent widget where this frame will be placed.
             root(tk.Tk): The root window to perform actions on it.
 
         Returns:
@@ -1042,9 +1033,7 @@ class newSite(tk.Frame):
 
             # If connection to directus failed, informs the user that connection failed.
             else:
-                self.label.config(
-                    text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
-                )
+                self.label.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
 
         elif (not self.username.get() or not self.password.get()) and country != "empty" and university != "empty":
             # If user didn't enter username or password
