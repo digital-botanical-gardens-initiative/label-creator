@@ -18,9 +18,9 @@ def main(new_labels_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     project = os.environ.get("PROJECT")
 
     # Define the Directus URLs
-    field_name = "field_sample_id"
+    field_name = "container"
     base_url = "https://emi-collection.unifr.ch/directus"
-    collection_url = base_url + "/items/Labels"
+    collection_url = base_url + "/items/Containers"
     request_url = collection_url + f"?filter[{field_name}][_starts_with]={project}_&&limit=1"
 
     # Define session

@@ -7,13 +7,12 @@ import webbrowser
 from tkinter import Event, filedialog, ttk
 from typing import Any
 
-import create_labels_csv
-import create_new_labels
-import create_new_mob_cont
-import create_new_site
-import create_new_stat_cont
+import container_labels
+import csv_labels
+import new_site
 import pandas as pd
 import requests
+import sample_labels
 from fuzzywuzzy import process
 
 
@@ -45,25 +44,17 @@ class MainPage(tk.Frame):
             label_labels.pack()
 
             button_new_labels = tk.Button(
-                self, text="Generate labels from scratch", width=40, command=self.open_new_labels
+                self, text="Generate sample labels from scratch", width=40, command=self.open_new_labels
             )
             button_new_labels.pack()
 
             button_mobile_container = tk.Button(
                 self,
-                text="Generate mobile containers labels from scratch",
+                text="Generate containers labels from scratch",
                 width=40,
                 command=self.open_mobile_container,
             )
             button_mobile_container.pack()
-
-            button_static_container = tk.Button(
-                self,
-                text="Generate static containers labels from scratch",
-                width=40,
-                command=self.open_static_container,
-            )
-            button_static_container.pack()
 
             button_existing = tk.Button(self, text="Print labels from a CSV", width=40, command=self.open_csv_labels)
             button_existing.pack()
@@ -96,21 +87,14 @@ class MainPage(tk.Frame):
         new_labels_window = tk.Toplevel(root)
         new_labels_window.title("Generate new labels")
         # Launches the corresponding class
-        newLabels(new_labels_window, root)
+        sampleLabels(new_labels_window, root)
 
     def open_mobile_container(self) -> None:
         # Create a new Toplevel window for the mobile containers
         new_mob_cont_window = tk.Toplevel(root)
         new_mob_cont_window.title("Generate new mobile containers labels")
         # Launches the corresponding class
-        newMobCont(new_mob_cont_window, root)
-
-    def open_static_container(self) -> None:
-        # Create a new Toplevel window for the static containers
-        new_stat_cont_window = tk.Toplevel(root)
-        new_stat_cont_window.title("Generate new static containers labels")
-        # Launches the corresponding class
-        newStatCont(new_stat_cont_window, root)
+        containerLabels(new_mob_cont_window, root)
 
     def open_csv_labels(self) -> None:
         # Create a new Toplevel window for the labels from CSV
@@ -133,7 +117,7 @@ class MainPage(tk.Frame):
 
 
 # Class to create new labels
-class newLabels(tk.Frame):
+class sampleLabels(tk.Frame):
     def __init__(self, new_labels_window: tk.Toplevel, root: tk.Tk):
         """
         Initializes an instance of the class.
@@ -321,7 +305,7 @@ class newLabels(tk.Frame):
                 access_token = data["access_token"]
                 os.environ["ACCESS_TOKEN"] = str(access_token)
                 # Launch the script to perform the labels creation
-                create_new_labels.main(self.new_labels_window, self.root, self.label)
+                sample_labels.main(self.new_labels_window, self.root, self.label)
 
             # If connection to directus failed, informs the user that connection failed.
             else:
@@ -372,7 +356,7 @@ class newLabels(tk.Frame):
             self.label.config(text="Multiple parameters errors!", foreground="red")
 
 
-class newMobCont(tk.Frame):
+class containerLabels(tk.Frame):
     def __init__(self, new_mob_cont_window: tk.Toplevel, root: tk.Tk):
         """
         Initializes an instance of the class.
@@ -613,205 +597,13 @@ class newMobCont(tk.Frame):
             data = response.json()["data"]
             access_token = data["access_token"]
             os.environ["ACCESS_TOKEN"] = str(access_token)
-            create_new_mob_cont.main(self.new_mob_cont_window, self.root, self.label)
+            container_labels.main(self.new_mob_cont_window, self.root, self.label)
 
         # If connection to directus failed, informs the user that connection failed.
         else:
             self.label.config(
                 text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
             )
-
-
-class newStatCont(tk.Frame):
-    def __init__(self, new_stat_cont_window: tk.Toplevel, root: tk.Tk):
-        """
-        Initializes an instance of the class.
-
-        Args:
-            new_stat_cont_window(tk.Toplevel): The parent widget where this frame will be placed.
-            root(tk.Tk): The root window to perform actions on it.
-
-        Returns:
-            None
-        """
-
-        # Make tk elements available across functions
-        self.new_stat_cont_window = new_stat_cont_window
-        self.root = root
-
-        # Hide main page
-        self.root.withdraw()
-
-        # Define behaviour of the closing button with function on_exit
-        self.new_stat_cont_window.protocol("WM_DELETE_WINDOW", self.on_exit)
-
-        # Create a variable to store the entered text
-        self.username = tk.StringVar(None)
-        self.password = tk.StringVar(None)
-        self.number = tk.IntVar(None)
-
-        # Create a frame for the informations
-        frame_info = tk.Frame(self.new_stat_cont_window)
-        frame_info.pack(pady=(10, 20))
-
-        # Adds the information label
-        self.label = tk.Label(
-            frame_info,
-            text="Generates avery L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) static container labels and reserves the codes in directus",
-            cursor="hand2",
-        )
-        self.label.pack()
-
-        # Makes the link clickable
-        self.label.bind("<Button-1>", self.open_link)
-
-        # Create text entry fields
-        label_username = tk.Label(self.new_stat_cont_window, text="Directus username:")
-        label_username.pack()
-        entry_username = tk.Entry(self.new_stat_cont_window, textvariable=self.username)
-        entry_username.pack()
-
-        label_password = tk.Label(self.new_stat_cont_window, text="Directus password:")
-        label_password.pack()
-        entry_password = tk.Entry(self.new_stat_cont_window, textvariable=self.password, show="*")
-        entry_password.pack()
-
-        # Number of labels
-        number_label = tk.Label(self.new_stat_cont_window, text="Number of labels:")
-        number_label.pack()
-        number_entry = tk.Entry(self.new_stat_cont_window, textvariable=self.number)
-        self.number.set(80)
-        number_entry.pack()
-
-        # Asks where to store the pdf
-        output_label = tk.Label(self.new_stat_cont_window, text="Select pdf output path:")
-        output_label.pack()
-        self.output_button = tk.Button(
-            self.new_stat_cont_window, text="select path", width=17, command=self.output_folder
-        )
-        self.output_button.pack()
-
-        # Frame for action buttons
-        frame_submit = tk.Frame(self.new_stat_cont_window)
-        frame_submit.pack(pady=(50, 0))
-
-        # Submit button
-        button_submit = tk.Button(frame_submit, text="Submit", width=17, command=self.test_connection)
-        button_submit.pack(side="left")
-
-        # Back to main button
-        button_back = tk.Button(frame_submit, text="Back to Main Page", width=17, command=self.on_exit)
-        button_back.pack(side="right")
-
-    # Function that closes gracefully the active page when user decides to quit
-    def on_exit(self) -> None:
-        """
-        Defines behaviour when user quits this window (by x button or specified button).
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        # Destroy actual page and displays the main page
-        self.new_stat_cont_window.destroy()
-        self.root.deiconify()
-
-    # Function to open the labels link when user clicks ont the information label
-    def open_link(self, event: Event) -> None:
-        webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
-
-    # Function to select and retrieve output path
-    def output_folder(self) -> None:
-        """
-        Asks the user to choose the output folder where PDF will be written.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        # Stores the user chosen path
-        self.output_dir = filedialog.askdirectory()
-        if self.output_dir:
-            # Adds the output folder as button placeholder
-            parts = self.output_dir.split("/")
-            folder = parts[-1]
-            self.output_button.config(text=folder)
-
-    def test_connection(self) -> None:
-        """
-        Controls that user has passed all the necessary arguments.
-        If it is the case, it tries to connect to directus and if connection is successful,
-        stores the access token for further requests.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-
-        # Check if the number of labels is effectively an integer
-        try:
-            number_value = self.number.get()
-        except Exception:
-            number_value = 0
-
-        # Check if output directory has been selected
-        try:
-            output = self.output_dir if self.output_dir else "empty"
-        except Exception:
-            output = "empty"
-
-        # Check that user entered the correct values
-        if self.username.get() and self.password.get() and number_value > 0 and output != "empty":
-            # Retrieve the entered values
-            os.environ["USERNAME"] = self.username.get()
-            os.environ["PASSWORD"] = self.password.get()
-            os.environ["NUMBER"] = str(self.number.get())
-            os.environ["OUTPUT_FOLDER"] = self.output_dir
-
-            # Define the Directus base URL
-            base_url = "https://emi-collection.unifr.ch/directus"
-
-            # Define the login endpoint URL
-            login_url = base_url + "/auth/login"
-            # Create a session object for making requests
-            session = requests.Session()
-            # Send a POST request to the login endpoint
-            response = session.post(login_url, json={"email": self.username.get(), "password": self.password.get()})
-            # Test if connection is successful
-            if response.status_code == 200:
-                # Stores the access token
-                data = response.json()["data"]
-                access_token = data["access_token"]
-                os.environ["ACCESS_TOKEN"] = str(access_token)
-                create_new_stat_cont.main(self.new_stat_cont_window, self.root, self.label)
-
-            # If connection to directus failed, informs the user that connection failed.
-            else:
-                self.label.config(
-                    text="Connexion to directus failed, verify your credentials/vpn connection", foreground="red"
-                )
-
-        elif (not self.username.get() or not self.password.get()) and number_value > 0 and output != "empty":
-            # If user didn't enter username or password
-            self.label.config(text="Please provide correct Directus credentials!", foreground="red")
-
-        elif self.username.get() and self.password.get() and number_value == 0 and output != "empty":
-            # If user enter a bad label number (for example text or 0)
-            self.label.config(text="Please provide a correct number of labels!", foreground="red")
-
-        elif self.username.get() and self.password.get() and number_value > 0 and output == "empty":
-            # If user didn't select an output dir
-            self.label.config(text="Please select the output directory!", foreground="red")
-
-        else:
-            # If there are multiple parameters errors
-            self.label.config(text="Multiple parameters errors!", foreground="red")
 
 
 class csvLabels(tk.Frame):
@@ -994,7 +786,7 @@ class csvLabels(tk.Frame):
             os.environ["PARAMSMALL"] = str(self.paramsmall.get())
             os.environ["FILE_PATH"] = self.csv_file
             os.environ["OUTPUT_FOLDER"] = self.output_dir
-            create_labels_csv.main(self.csv_labels_window, self.root, self.label)
+            csv_labels.main(self.csv_labels_window, self.root, self.label)
 
         elif (self.parambig.get() != 0 or self.paramsmall.get() != 0) and csv == "empty" and output != "empty":
             # If no CSV selected
@@ -1246,7 +1038,7 @@ class newSite(tk.Frame):
                 data = response.json()["data"]
                 access_token = data["access_token"]
                 os.environ["ACCESS_TOKEN"] = str(access_token)
-                create_new_site.main(self.new_site_window, self.root, self.label)
+                new_site.main(self.new_site_window, self.root, self.label)
 
             # If connection to directus failed, informs the user that connection failed.
             else:
