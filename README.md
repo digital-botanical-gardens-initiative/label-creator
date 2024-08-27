@@ -10,9 +10,9 @@
 
 Label Creator software permits to create all sorts of labels for the EMI project.
 
-- It requests the Directus database, generates labels (field samples, mobile containers and static containers) asked by the user and reserves them. Then it formats them in pdf format to fit [avery L4732](https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) labels, ready to print.
+- It requests the Directus database, generates labels asked by the user and reserves them. Then it formats them in a pdf file to fit avery [L4731](https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25), [L4732](https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) and [L4736](https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25) labels, ready to print.
 
-- It also generates labels from a CSV table, without adding them to Directus. This mode is made to easily print provisory labels or labels that don't fit EMI requiremnts.
+- It also generates labels from a CSV table, without adding them to Directus. This mode is made to easily print provisory labels or labels that don't fit EMI requirements.
 
 - Finally it also permits to add universities to the Directus database in order to track samples across different institutions.
 
