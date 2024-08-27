@@ -1,5 +1,5 @@
 # To convert this script into a binary compatible with the OS where the command is executed:
-# pyinstaller --onefile --paths=./ --hidden-import=create_labels_csv --hidden-import=create_new_labels --hidden-import=create_new_mob_cont --hidden-import=create_new_site --hidden-import=create_new_stat_cont label_creator.py
+# pyinstaller --onefile --paths=./ --hidden-import=sample_labels_csv --hidden-import=container_labels --hidden-import=csv_labels --hidden-import=new_site label_creator.py
 
 import os
 import tkinter as tk
