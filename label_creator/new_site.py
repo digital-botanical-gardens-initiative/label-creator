@@ -18,15 +18,15 @@ def main(new_site_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
 
     # Define the Directus URLs
     base_url = "https://emi-collection.unifr.ch/directus"
-    collection_url = base_url + "/items/University"
+    collection_url = base_url + "/items/Universities"
 
     # Create a session object for making requests
     session = requests.Session()
 
     # Create template dataframe to reserve labels
     raw_data = {
-        "University_name": site,
-        "status": "Active",
+        "university_name": site,
+        "status": "active",
         "country": country,
         "alpha_two": alpha_two_code,
         "web_pages": web_pages,
@@ -37,7 +37,7 @@ def main(new_site_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     # Create a dataframe template to store the values
     template = pd.DataFrame(
         [raw_data for _ in range(1)],
-        columns=["University_name", "status", "country", "alpha_two", "web_pages", "state", "domains"],
+        columns=["university_name", "status", "country", "alpha_two", "web_pages", "state", "domains"],
     )
 
     # Transform the dataframe to a json
@@ -57,7 +57,8 @@ def main(new_site_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
     elif response.status_code == 400:
         # If request fails with code 400, informs user that the site is already in the database
         label.config(
-            text="Site already entered in the database. You can add another site if you want.", foreground="red"
+            text="Site already entered in the database and usable in the project. You can add another site.",
+            foreground="red",
         )
 
     else:
