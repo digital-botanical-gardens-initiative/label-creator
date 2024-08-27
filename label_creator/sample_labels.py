@@ -9,7 +9,7 @@ from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 
 
-def main(sample_labels_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
+def main(sample_labels_window: tk.Toplevel, root: tk.Tk, label_info: tk.Label, label_info_2: tk.Label) -> None:
     # Load variables
     number = int(str(os.environ.get("NUMBER")))
     output_folder = str(os.environ.get("OUTPUT_FOLDER"))
@@ -85,7 +85,8 @@ def main(sample_labels_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> Non
         root.destroy()
 
     else:
-        label.config(text=f"The request failed: {response.json()['errors'][0]['message']}.", foreground="red")
+        label_info.config(text=f"The request failed: {response.json()['errors'][0]['message']}.", foreground="red")
+        label_info_2.config(text="")
 
 
 def create_big_labels_pdf(values: list, output_folder: str) -> None:

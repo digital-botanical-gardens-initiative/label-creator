@@ -38,13 +38,22 @@ class MainPage(tk.Frame):
         data = response.json()["tag_name"]
         tag = float(str.replace(data, "v", ""))
 
+        # Put white background
+        self.configure(bg="white")
+
         if tag <= 2.0:
             # Create GUI elements for labels
-            label_labels = tk.Label(self, text="Create labels")
+            label_labels = tk.Label(self, text="Create labels", background="white", font=("Helvetica", 16))
             label_labels.pack()
 
             button_new_labels = tk.Button(
-                self, text="Generate sample labels", width=40, command=self.open_sample_labels
+                self,
+                text="Generate sample labels",
+                width=40,
+                font=("Helvetica", 11),
+                background="#f0f0f0",
+                relief="flat",
+                command=self.open_sample_labels,
             )
             button_new_labels.pack()
 
@@ -52,33 +61,65 @@ class MainPage(tk.Frame):
                 self,
                 text="Generate containers labels",
                 width=40,
+                font=("Helvetica", 11),
+                relief="flat",
+                background="#f0f0f0",
                 command=self.open_container_labels,
             )
             button_mobile_container.pack()
 
-            button_existing = tk.Button(self, text="Print labels from a CSV", width=40, command=self.open_csv_labels)
+            button_existing = tk.Button(
+                self,
+                text="Print labels from a CSV",
+                width=40,
+                font=("Helvetica", 11),
+                background="#f0f0f0",
+                relief="flat",
+                command=self.open_csv_labels,
+            )
             button_existing.pack()
 
-            # Add some space to discriminate label generation from adding a new site
-            label_space = tk.Label(self, text="")
-            label_space.pack()
-
-            label_space = tk.Label(self, text="")
-            label_space.pack()
+            # Create site frame to add a space
+            frame_site = tk.Frame(self, background="white")
+            frame_site.pack(pady=(70, 10))
 
             # Create GUI elements to add a new site
-            label_new_site = tk.Label(self, text="Add a new site to the database")
+            label_new_site = tk.Label(
+                frame_site, text="Add a new site to the database", background="white", font=("Helvetica", 16)
+            )
             label_new_site.pack()
 
-            button_new_site = tk.Button(self, text="Add a new site", width=40, command=self.open_new_site)
+            button_new_site = tk.Button(
+                frame_site,
+                text="Add a new site",
+                width=40,
+                font=("Helvetica", 11),
+                background="#f0f0f0",
+                relief="flat",
+                command=self.open_new_site,
+            )
             button_new_site.pack()
         else:
+            # Create frame to center the text
+            frame_new = tk.Frame(self, background="white")
+            frame_new.pack(pady=(100, 10))
+
             # Create GUI elements to ask user to download the latest version
-            label_labels = tk.Label(self, text="A new version is available, please download it.")
+            label_labels = tk.Label(
+                frame_new,
+                text="A new version is available, please download it.",
+                background="white",
+                font=("Helvetica", 16),
+            )
             label_labels.pack()
 
             button_new_labels = tk.Button(
-                self, text="Download latest version", width=40, command=self.download_last_version
+                frame_new,
+                text=f"Download new release: {data}",
+                width=40,
+                background="#f0f0f0",
+                relief="flat",
+                command=self.download_last_version,
             )
             button_new_labels.pack()
 
@@ -86,6 +127,7 @@ class MainPage(tk.Frame):
         # Create a new Toplevel window for the new labels
         sample_labels_window = tk.Toplevel(root)
         sample_labels_window.title("Generate sample labels")
+        sample_labels_window.minsize(600, 650)
         # Launches the corresponding class
         sampleLabels(sample_labels_window, root)
 
@@ -93,6 +135,7 @@ class MainPage(tk.Frame):
         # Create a new Toplevel window for the mobile containers
         container_labels_window = tk.Toplevel(root)
         container_labels_window.title("Generate containers labels")
+        container_labels_window.minsize(650, 580)
         # Launches the corresponding class
         containerLabels(container_labels_window, root)
 
@@ -100,6 +143,7 @@ class MainPage(tk.Frame):
         # Create a new Toplevel window for the labels from CSV
         csv_labels_window = tk.Toplevel(root)
         csv_labels_window.title("Generate labels from a CSV")
+        csv_labels_window.minsize(650, 470)
         # Launches the corresponding class
         csvLabels(csv_labels_window, root)
 
@@ -107,6 +151,7 @@ class MainPage(tk.Frame):
         # Create a new Toplevel window to add a new site
         new_site_window = tk.Toplevel(root)
         new_site_window.title("Add a new site")
+        new_site_window.minsize(550, 540)
         # Launches the corresponding class
         newSite(new_site_window, root)
 
@@ -140,6 +185,9 @@ class sampleLabels(tk.Frame):
         # Associates the close button to a specific action managed by on_exit function
         self.sample_labels_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
+        # Make background white
+        self.sample_labels_window.configure(bg="white")
+
         # Create variables to store the user entered parameters
         self.username = tk.StringVar(None)
         self.password = tk.StringVar(None)
@@ -147,32 +195,87 @@ class sampleLabels(tk.Frame):
         self.project = tk.StringVar(None)
         self.label_size = tk.IntVar(None)
 
-        # Create GUI elements for this class
-
-        # Create informations frame
-        frame_info = tk.Frame(self.sample_labels_window)
-        frame_info.pack(pady=(10, 20))
+        # Create informations GUI
+        self.label_info = tk.Label(
+            self.sample_labels_window,
+            text="Generates avery L4736, L4732 or L4731 labels",
+            background="white",
+            font=("Helvetica", 16),
+        )
+        self.label_info.pack()
 
         # Create informations GUI
-        self.label = tk.Label(
-            frame_info,
-            text="Generates avery L4736 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25), L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) or L4731 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25) labels and reserves the codes in directus",
-            cursor="hand2",
+        self.label_info_2 = tk.Label(
+            self.sample_labels_window,
+            text="and reserves the codes in directus",
+            background="white",
+            font=("Helvetica", 16),
         )
-        self.label.pack()
+        self.label_info_2.pack()
+
+        # Create informations frame
+        frame_info = tk.Frame(self.sample_labels_window, background="white")
+        frame_info.pack(pady=(10, 20))
+
+        # L4736 info
+        self.label_l4736 = tk.Label(
+            frame_info,
+            text="L4736 informations",
+            cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
+        )
+        self.label_l4736.grid(row=0, column=0, padx=10)
 
         # Makes the link clickable
-        self.label.bind("<Button-1>", self.open_link)
+        self.label_l4736.bind("<Button-1>", lambda event: self.open_link(4736, event))
+
+        # L4732 info
+        self.label_l4732 = tk.Label(
+            frame_info,
+            text="L4732 informations",
+            cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
+        )
+        self.label_l4732.grid(row=0, column=1, padx=10)
+
+        # Makes the link clickable
+        self.label_l4732.bind("<Button-1>", lambda event: self.open_link(4732, event))
+
+        # L4731 info
+        self.label_l4731 = tk.Label(
+            frame_info,
+            text="L4731 Informations",
+            cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
+        )
+        self.label_l4731.grid(row=0, column=2, padx=10)
+
+        # Makes the link clickable
+        self.label_l4731.bind("<Button-1>", lambda event: self.open_link(4731, event))
 
         # Create text entry fields
-        label_username = tk.Label(self.sample_labels_window, text="Directus username:")
-        label_username.pack()
-        entry_username = tk.Entry(self.sample_labels_window, textvariable=self.username)
+        label_username = tk.Label(
+            self.sample_labels_window, text="Directus username:", background="white", font=("Helvetica", 12)
+        )
+        label_username.pack(pady=(20, 5))
+        entry_username = tk.Entry(
+            self.sample_labels_window, textvariable=self.username, relief="flat", font=("Helvetica", 11)
+        )
         entry_username.pack()
 
-        label_password = tk.Label(self.sample_labels_window, text="Directus password:")
-        label_password.pack()
-        entry_password = tk.Entry(self.sample_labels_window, textvariable=self.password, show="*")
+        label_password = tk.Label(
+            self.sample_labels_window, text="Directus password:", background="white", font=("Helvetica", 12)
+        )
+        label_password.pack(pady=(20, 5))
+        entry_password = tk.Entry(
+            self.sample_labels_window, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
+        )
         entry_password.pack()
 
         # Extract the project names from directus
@@ -185,40 +288,94 @@ class sampleLabels(tk.Frame):
         project_names = [item[column] for item in data]
 
         # Choose the project
-        project_label = tk.Label(self.sample_labels_window, text="Choose your project:")
-        project_label.pack()
+        project_label = tk.Label(
+            self.sample_labels_window, text="Choose your project:", background="white", font=("Helvetica", 12)
+        )
+        project_label.pack(pady=(20, 5))
         dropdown_project = tk.OptionMenu(self.sample_labels_window, self.project, *project_names)
+        # Customizing the OptionMenu to appear flat
+        dropdown_project.config(font=("Helvetica", 11), bg="#f0f0f0", fg="black", bd=0, highlightthickness=0)
         dropdown_project.pack()
+        # Access and customize the drop-down menu
+        menu = dropdown_project["menu"]
+        menu.configure(
+            bg="white", fg="black", activebackground="white", activeforeground="black", font=("Helvetica", 11)
+        )
 
-        # Create radio buttons to select the size of labels
+        # Create label to choose label format
+        self.label_format = tk.Label(
+            self.sample_labels_window, text="Choose the label format:", background="white", font=("Helvetica", 12)
+        )
+        self.label_format.pack(pady=(20, 5))
+
+        # Frame to hold radio buttons
+        radio_frame = tk.Frame(self.sample_labels_window, bg="white")
+        radio_frame.pack()
+
+        # Set to medium size by default
         self.label_size.set(2)
+
+        # Create radio buttons for label sizes
         radio_big = tk.Radiobutton(
-            self.sample_labels_window, text="big labels (avery L4736)", variable=self.label_size, value=1
+            radio_frame,
+            text="big labels (avery L4736)",
+            variable=self.label_size,
+            value=1,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_big.pack()
-
         radio_medium = tk.Radiobutton(
-            self.sample_labels_window, text="medium labels (avery L4732)", variable=self.label_size, value=2
+            radio_frame,
+            text="medium labels (avery L4732)",
+            variable=self.label_size,
+            value=2,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_medium.pack()
-
         radio_small = tk.Radiobutton(
-            self.sample_labels_window, text="small labels (avery L4731)", variable=self.label_size, value=3
+            radio_frame,
+            text="small labels (avery L4731)",
+            variable=self.label_size,
+            value=3,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_small.pack()
+
+        # Pack radio buttons
+        radio_big.pack(anchor="w", padx=20)
+        radio_medium.pack(anchor="w", padx=20)
+        radio_small.pack(anchor="w", padx=20)
+
+        # Center the frame containing radio buttons
+        radio_frame.pack(anchor="center")
 
         # Number of labels
-        number_label = tk.Label(self.sample_labels_window, text="Number of labels:")
-        number_label.pack()
-        number_entry = tk.Entry(self.sample_labels_window, textvariable=self.number)
+        number_label = tk.Label(
+            self.sample_labels_window, text="Number of labels:", background="white", font=("Helvetica", 12)
+        )
+        number_label.pack(pady=(20, 5))
+        number_entry = tk.Entry(
+            self.sample_labels_window, textvariable=self.number, relief="flat", font=("Helvetica", 11)
+        )
         self.number.set(80)
         number_entry.pack()
 
         # Asks where to store the pdf
-        output_label = tk.Label(self.sample_labels_window, text="Select pdf output path:")
-        output_label.pack()
+        output_label = tk.Label(
+            self.sample_labels_window, text="Select pdf output path:", background="white", font=("Helvetica", 12)
+        )
+        output_label.pack(pady=(20, 5))
         self.output_button = tk.Button(
-            self.sample_labels_window, text="select path", width=17, command=self.output_folder
+            self.sample_labels_window,
+            text="select path",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.output_folder,
         )
         self.output_button.pack()
 
@@ -227,11 +384,27 @@ class sampleLabels(tk.Frame):
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
-        button_submit = tk.Button(frame_submit, text="Submit", width=17, command=self.test_connection)
+        button_submit = tk.Button(
+            frame_submit,
+            text="Submit",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.test_connection,
+        )
         button_submit.pack(side="left")
 
         # Back to main button
-        button_back = tk.Button(frame_submit, text="Back to Main Page", width=17, command=self.on_exit)
+        button_back = tk.Button(
+            frame_submit,
+            text="Back to Main Page",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.on_exit,
+        )
         button_back.pack(side="right")
 
     # Function that manages the behaviour when user quits the page
@@ -250,8 +423,13 @@ class sampleLabels(tk.Frame):
         self.root.deiconify()
 
     # Function to open the link to avery labels
-    def open_link(self, event: Event) -> None:
-        webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
+    def open_link(self, model: int, event: Event) -> None:
+        if model == 4736:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25")
+        elif model == 4732:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
+        else:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25")
 
     # Function to select and retrieve output path
     def output_folder(self) -> None:
@@ -330,11 +508,12 @@ class sampleLabels(tk.Frame):
                 access_token = data["access_token"]
                 os.environ["ACCESS_TOKEN"] = str(access_token)
                 # Launch the script to perform the labels creation
-                sample_labels.main(self.sample_labels_window, self.root, self.label)
+                sample_labels.main(self.sample_labels_window, self.root, self.label_info, self.label_info_2)
 
             # If connection to directus failed, informs the user that connection failed.
             else:
-                self.label.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
+                self.label_info.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
+                self.label_info_2.config(text="")
 
         elif (
             (not self.username.get() or not self.password.get())
@@ -343,7 +522,8 @@ class sampleLabels(tk.Frame):
             and self.project.get()
         ):
             # If user didn't enter username or password
-            self.label.config(text="Please provide correct Directus credentials!", foreground="red")
+            self.label_info.config(text="Please provide correct Directus credentials!", foreground="red")
+            self.label_info_2.config(text="")
 
         elif (
             self.username.get()
@@ -353,7 +533,8 @@ class sampleLabels(tk.Frame):
             and self.project.get()
         ):
             # If user enter a bad label number (for example text or 0)
-            self.label.config(text="Please provide a correct number of labels!", foreground="red")
+            self.label_info.config(text="Please provide a correct number of labels!", foreground="red")
+            self.label_info_2.config(text="")
 
         elif (
             self.username.get()
@@ -363,7 +544,8 @@ class sampleLabels(tk.Frame):
             and self.project.get()
         ):
             # If user didn't select an output dir
-            self.label.config(text="Please select the output directory!", foreground="red")
+            self.label_info.config(text="Please select the output directory!", foreground="red")
+            self.label_info_2.config(text="")
 
         elif (
             self.username.get()
@@ -373,10 +555,12 @@ class sampleLabels(tk.Frame):
             and not self.project.get()
         ):
             # If user didn't select an EMI project
-            self.label.config(text="Please select an EMI project!", foreground="red")
+            self.label_info.config(text="Please select an EMI project!", foreground="red")
+            self.label_info_2.config(text="")
         else:
             # If there are multiple parameters errors
-            self.label.config(text="Multiple parameters errors!", foreground="red")
+            self.label_info.config(text="Multiple parameters errors!", foreground="red")
+            self.label_info_2.config(text="")
 
 
 class containerLabels(tk.Frame):
@@ -402,67 +586,172 @@ class containerLabels(tk.Frame):
         # Define behaviour of the closing button with function on_exit
         self.container_labels_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
+        # Make background white
+        self.container_labels_window.configure(bg="white")
+
         # Create a variable to store the entered text
         self.username = tk.StringVar(None)
         self.password = tk.StringVar(None)
         self.label_size = tk.IntVar(None)
         self.number = tk.IntVar(None)
 
-        # Create a frame for the informations
-        frame_info = tk.Frame(self.container_labels_window)
+        # Create informations GUI
+        self.label_info = tk.Label(
+            self.container_labels_window,
+            text="Generates avery L4736, L4732 or L4731 container labels",
+            background="white",
+            font=("Helvetica", 16),
+        )
+        self.label_info.pack()
+
+        # Create informations GUI
+        self.label_info_2 = tk.Label(
+            self.container_labels_window,
+            text="and reserves the codes in directus",
+            background="white",
+            font=("Helvetica", 16),
+        )
+        self.label_info_2.pack()
+
+        # Create informations frame
+        frame_info = tk.Frame(self.container_labels_window, background="white")
         frame_info.pack(pady=(10, 20))
 
-        # Adds the information label
-        self.label = tk.Label(
+        # L4736 info
+        self.label_l4736 = tk.Label(
             frame_info,
-            text="Generates avery L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) container labels and reserves the codes in directus",
+            text="L4736 informations",
             cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
         )
-        self.label.pack()
+        self.label_l4736.grid(row=0, column=0, padx=10)
 
         # Makes the link clickable
-        self.label.bind("<Button-1>", self.open_link)
+        self.label_l4736.bind("<Button-1>", lambda event: self.open_link(4736, event))
+
+        # L4732 info
+        self.label_l4732 = tk.Label(
+            frame_info,
+            text="L4732 informations",
+            cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
+        )
+        self.label_l4732.grid(row=0, column=1, padx=10)
+
+        # Makes the link clickable
+        self.label_l4732.bind("<Button-1>", lambda event: self.open_link(4732, event))
+
+        # L4731 info
+        self.label_l4731 = tk.Label(
+            frame_info,
+            text="L4731 Informations",
+            cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
+        )
+        self.label_l4731.grid(row=0, column=2, padx=10)
+
+        # Makes the link clickable
+        self.label_l4731.bind("<Button-1>", lambda event: self.open_link(4731, event))
 
         # Create text entry fields
-        label_username = tk.Label(self.container_labels_window, text="Directus username:")
-        label_username.pack()
-        entry_username = tk.Entry(self.container_labels_window, textvariable=self.username)
+        label_username = tk.Label(
+            self.container_labels_window, text="Directus username:", background="white", font=("Helvetica", 12)
+        )
+        label_username.pack(pady=(20, 5))
+        entry_username = tk.Entry(
+            self.container_labels_window, textvariable=self.username, relief="flat", font=("Helvetica", 11)
+        )
         entry_username.pack()
 
-        label_password = tk.Label(self.container_labels_window, text="Directus password:")
-        label_password.pack()
-        entry_password = tk.Entry(self.container_labels_window, textvariable=self.password, show="*")
+        label_password = tk.Label(
+            self.container_labels_window, text="Directus password:", background="white", font=("Helvetica", 12)
+        )
+        label_password.pack(pady=(20, 5))
+        entry_password = tk.Entry(
+            self.container_labels_window, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
+        )
         entry_password.pack()
 
-        # Create radio buttons to select the type of labels
+        # Create label to choose label format
+        self.label_format = tk.Label(
+            self.container_labels_window, text="Choose the label format:", background="white", font=("Helvetica", 12)
+        )
+        self.label_format.pack(pady=(20, 5))
+
+        # Frame to hold radio buttons
+        radio_frame = tk.Frame(self.container_labels_window, bg="white")
+        radio_frame.pack()
+
+        # Set to medium size by default
         self.label_size.set(2)
+
+        # Create radio buttons for label sizes
         radio_big = tk.Radiobutton(
-            self.container_labels_window, text="big labels (avery L4736)", variable=self.label_size, value=1
+            radio_frame,
+            text="big labels (avery L4736)",
+            variable=self.label_size,
+            value=1,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_big.pack()
-
         radio_medium = tk.Radiobutton(
-            self.container_labels_window, text="medium labels (avery L4732)", variable=self.label_size, value=2
+            radio_frame,
+            text="medium labels (avery L4732)",
+            variable=self.label_size,
+            value=2,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_medium.pack()
-
         radio_small = tk.Radiobutton(
-            self.container_labels_window, text="small labels (avery L4731)", variable=self.label_size, value=3
+            radio_frame,
+            text="small labels (avery L4731)",
+            variable=self.label_size,
+            value=3,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_small.pack()
+
+        # Pack radio buttons
+        radio_big.pack(anchor="w", padx=20)
+        radio_medium.pack(anchor="w", padx=20)
+        radio_small.pack(anchor="w", padx=20)
+
+        # Center the frame containing radio buttons
+        radio_frame.pack(anchor="center")
 
         # Number of labels
-        number_label = tk.Label(self.container_labels_window, text="Number of labels:")
-        number_label.pack()
-        number_entry = tk.Entry(self.container_labels_window, textvariable=self.number)
+        number_label = tk.Label(
+            self.container_labels_window, text="Number of labels:", background="white", font=("Helvetica", 12)
+        )
+        number_label.pack(pady=(20, 5))
+        number_entry = tk.Entry(
+            self.container_labels_window, textvariable=self.number, relief="flat", font=("Helvetica", 11)
+        )
         self.number.set(80)
         number_entry.pack()
 
         # Asks where to store the pdf
-        output_label = tk.Label(self.container_labels_window, text="Select pdf output path:")
-        output_label.pack()
+        output_label = tk.Label(
+            self.container_labels_window, text="Select pdf output path:", background="white", font=("Helvetica", 12)
+        )
+        output_label.pack(pady=(20, 5))
         self.output_button = tk.Button(
-            self.container_labels_window, text="select path", width=17, command=self.output_folder
+            self.container_labels_window,
+            text="select path",
+            font=("Helvetica", 11),
+            width=17,
+            background="#f0f0f0",
+            relief="flat",
+            command=self.output_folder,
         )
         self.output_button.pack()
 
@@ -471,11 +760,27 @@ class containerLabels(tk.Frame):
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
-        button_submit = tk.Button(frame_submit, text="Submit", width=17, command=self.test_parameters)
+        button_submit = tk.Button(
+            frame_submit,
+            text="Submit",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.test_parameters,
+        )
         button_submit.pack(side="left")
 
         # Back to main button
-        button_back = tk.Button(frame_submit, text="Back to Main Page", width=17, command=self.on_exit)
+        button_back = tk.Button(
+            frame_submit,
+            text="Back to Main Page",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.on_exit,
+        )
         button_back.pack(side="right")
 
     # Function that closes gracefully the active page when user decides to quit
@@ -493,9 +798,14 @@ class containerLabels(tk.Frame):
         self.container_labels_window.destroy()
         self.root.deiconify()
 
-    # Function to open the labels link when user clicks ont the information label
-    def open_link(self, event: Event) -> None:
-        webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
+    # Function to open the link to avery labels
+    def open_link(self, model: int, event: Event) -> None:
+        if model == 4736:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25")
+        elif model == 4732:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
+        else:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25")
 
     # Function to select and retrieve output path
     def output_folder(self) -> None:
@@ -545,15 +855,18 @@ class containerLabels(tk.Frame):
 
         elif (not self.username.get() or not self.password.get()) and number_value > 0 and output != "empty":
             # If user didn't enter username or password
-            self.label.config(text="Please provide correct Directus credentials!", foreground="red")
+            self.label_info.config(text="Please provide correct Directus credentials!", foreground="red")
+            self.label_info_2.config(text="")
 
         elif self.username.get() and self.password.get() and number_value > 0 and output == "empty":
             # If user didn't select an output dir
-            self.label.config(text="Please select the output directory!", foreground="red")
+            self.label_info.config(text="Please select the output directory!", foreground="red")
+            self.label_info_2.config(text="")
 
         else:
             # If there are multiple parameters errors
-            self.label.config(text="Multiple parameters errors!", foreground="red")
+            self.label_info.config(text="Multiple parameters errors!", foreground="red")
+            self.label_info_2.config(text="")
 
     def test_connection(self) -> None:
         """
@@ -588,11 +901,12 @@ class containerLabels(tk.Frame):
             data = response.json()["data"]
             access_token = data["access_token"]
             os.environ["ACCESS_TOKEN"] = str(access_token)
-            container_labels.main(self.container_labels_window, self.root, self.label)
+            container_labels.main(self.container_labels_window, self.root, self.label_info, self.label_info_2)
 
         # If connection to directus failed, informs the user that connection failed.
         else:
-            self.label.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
+            self.label_info.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
+            self.label_info_2.config(text="")
 
 
 class csvLabels(tk.Frame):
@@ -618,32 +932,74 @@ class csvLabels(tk.Frame):
         # Define behaviour of the closing button with function on_exit
         self.csv_labels_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
+        # Make background white
+        self.csv_labels_window.configure(bg="white")
+
         # Create a variable to store the entered text
         self.number_ext = tk.StringVar(None)
         self.number_inj = tk.StringVar(None)
         self.label_size = tk.IntVar(None)
 
-        # Create a frame for the informations
-        frame_info = tk.Frame(self.csv_labels_window)
+        # Create informations GUI
+        self.label_info = tk.Label(
+            self.csv_labels_window,
+            text="Generates avery L4736, L4732 or L4731 labels from a CSV file",
+            background="white",
+            font=("Helvetica", 16),
+        )
+        self.label_info.pack()
+
+        # Create informations frame
+        frame_info = tk.Frame(self.csv_labels_window, background="white")
         frame_info.pack(pady=(10, 20))
 
-        # Adds the information label
-        self.label = tk.Label(
+        # L4736 info
+        self.label_l4736 = tk.Label(
             frame_info,
-            text="Generates avery L4736 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25), L4732 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25) or L4731 (https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25) labels from a CSV",
+            text="L4736 informations",
             cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
         )
-        self.label.pack()
+        self.label_l4736.grid(row=0, column=0, padx=10)
 
         # Makes the link clickable
-        self.label.bind("<Button-1>", self.open_link)
+        self.label_l4736.bind("<Button-1>", lambda event: self.open_link(4736, event))
 
-        # Create information and warning labels
-        self.label = tk.Label(self.csv_labels_window, text="Print labels using a CSV")
-        self.label.pack()
+        # L4732 info
+        self.label_l4732 = tk.Label(
+            frame_info,
+            text="L4732 informations",
+            cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
+        )
+        self.label_l4732.grid(row=0, column=1, padx=10)
+
+        # Makes the link clickable
+        self.label_l4732.bind("<Button-1>", lambda event: self.open_link(4732, event))
+
+        # L4731 info
+        self.label_l4731 = tk.Label(
+            frame_info,
+            text="L4731 Informations",
+            cursor="hand2",
+            foreground="blue",
+            background="white",
+            font=("Helvetica", 11),
+        )
+        self.label_l4731.grid(row=0, column=2, padx=10)
+
+        # Makes the link clickable
+        self.label_l4731.bind("<Button-1>", lambda event: self.open_link(4731, event))
 
         import_label = tk.Label(
-            self.csv_labels_window, text="CSV is expected to have a unique column containing codes, without header."
+            self.csv_labels_window,
+            text="CSV is expected to have a unique column containing codes, without header.",
+            background="white",
+            font=("Helvetica", 11),
         )
         import_label.pack()
 
@@ -651,47 +1007,122 @@ class csvLabels(tk.Frame):
             self.csv_labels_window,
             text="Be careful, this mode doesn't verify that labels are unique and doesn't enter them into Directus.",
             foreground="orange",
+            background="white",
+            font=("Helvetica", 11),
         )
         warning_label.pack()
 
-        # Create button to import the CSV
-        self.import_button = tk.Button(self.csv_labels_window, text="Import your CSV", command=self.import_csv)
+        # Import the CSV
+        self.csv_label = tk.Label(
+            self.csv_labels_window, text="Choose your CSV", background="white", font=("Helvetica", 12)
+        )
+        self.csv_label.pack(pady=(20, 5))
+        self.import_button = tk.Button(
+            self.csv_labels_window,
+            text="select CSV:",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.import_csv,
+        )
         self.import_button.pack()
 
-        # Create elements to select output directory
-        output_label = tk.Label(self.csv_labels_window, text="Select the output path for the pdf files")
-        output_label.pack()
+        # Create label to choose label format
+        self.label_format = tk.Label(
+            self.csv_labels_window, text="Choose the label format:", background="white", font=("Helvetica", 12)
+        )
+        self.label_format.pack(pady=(20, 5))
 
-        self.output_button = tk.Button(self.csv_labels_window, text="select path", command=self.output_folder)
-        self.output_button.pack()
+        # Frame to hold radio buttons
+        radio_frame = tk.Frame(self.csv_labels_window, bg="white")
+        radio_frame.pack()
 
-        # Create radio buttons to select the type of labels
+        # Set to medium size by default
         self.label_size.set(2)
+
+        # Create radio buttons for label sizes
         radio_big = tk.Radiobutton(
-            self.csv_labels_window, text="big labels (avery L4736)", variable=self.label_size, value=1
+            radio_frame,
+            text="big labels (avery L4736)",
+            variable=self.label_size,
+            value=1,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_big.pack()
-
         radio_medium = tk.Radiobutton(
-            self.csv_labels_window, text="medium labels (avery L4732)", variable=self.label_size, value=2
+            radio_frame,
+            text="medium labels (avery L4732)",
+            variable=self.label_size,
+            value=2,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_medium.pack()
-
         radio_small = tk.Radiobutton(
-            self.csv_labels_window, text="small labels (avery L4731)", variable=self.label_size, value=3
+            radio_frame,
+            text="small labels (avery L4731)",
+            variable=self.label_size,
+            value=3,
+            background="white",
+            font=("Helvetica", 11),
+            highlightthickness=0,
         )
-        radio_small.pack()
+
+        # Pack radio buttons
+        radio_big.pack(anchor="w", padx=20)
+        radio_medium.pack(anchor="w", padx=20)
+        radio_small.pack(anchor="w", padx=20)
+
+        # Center the frame containing radio buttons
+        radio_frame.pack(anchor="center")
+
+        # Create elements to select output directory
+        output_label = tk.Label(
+            self.csv_labels_window,
+            text="Select the output path for the pdf files:",
+            background="white",
+            font=("Helvetica", 12),
+        )
+        output_label.pack(pady=(20, 5))
+        self.output_button = tk.Button(
+            self.csv_labels_window,
+            text="select path",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.output_folder,
+        )
+        self.output_button.pack()
 
         # Frame for action buttons
         frame_submit = tk.Frame(self.csv_labels_window)
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
-        button_submit = tk.Button(frame_submit, text="Submit", command=self.submit_result)
+        button_submit = tk.Button(
+            frame_submit,
+            text="Submit",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.submit_result,
+        )
         button_submit.pack(side="left")
 
         # Back to main button
-        button_back = tk.Button(frame_submit, text="Back to Main Page", command=self.on_exit)
+        button_back = tk.Button(
+            frame_submit,
+            text="Back to Main Page",
+            width=17,
+            font=("Helvetica", 11),
+            background="#f0f0f0",
+            relief="flat",
+            command=self.on_exit,
+        )
         button_back.pack(side="right")
 
     # Function that closes gracefully the active page when user decides to quit
@@ -709,9 +1140,14 @@ class csvLabels(tk.Frame):
         self.csv_labels_window.destroy()
         self.root.deiconify()
 
-    # Function to open the labels link when user clicks ont the information label
-    def open_link(self, event: Event) -> None:
-        webbrowser.open_new("https://www.avery.co.uk/template-l4732")
+    # Function to open the link to avery labels
+    def open_link(self, model: int, event: Event) -> None:
+        if model == 4736:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4736rev-25")
+        elif model == 4732:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4732rev-25")
+        else:
+            webbrowser.open_new("https://www.avery.co.uk/product/mini-multipurpose-labels-l4731rev-25")
 
     # Function to select and retrieve CSV path
     def import_csv(self) -> None:
@@ -781,19 +1217,19 @@ class csvLabels(tk.Frame):
             os.environ["LABEL_SIZE"] = str(self.label_size.get())
             os.environ["FILE_PATH"] = self.csv_file
             os.environ["OUTPUT_FOLDER"] = self.output_dir
-            csv_labels.main(self.csv_labels_window, self.root, self.label)
+            csv_labels.main(self.csv_labels_window, self.root)
 
         elif csv == "empty" and output != "empty":
             # If no CSV selected
-            self.label.config(text="Please select a CSV!", foreground="red")
+            self.label_info.config(text="Please select a CSV!", foreground="red")
 
         elif csv != "empty" and output == "empty":
             # If no output dir selected
-            self.label.config(text="Please select the output directory!", foreground="red")
+            self.label_info.config(text="Please select the output directory!", foreground="red")
 
         else:
             # If there are multiple parameters errors
-            self.label.config(text="Multiple parameters errors!", foreground="red")
+            self.label_info.config(text="Multiple parameters errors!", foreground="red")
 
 
 class newSite(tk.Frame):
@@ -819,12 +1255,17 @@ class newSite(tk.Frame):
         # Define behaviour of the closing button with function on_exit
         self.new_site_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
+        # Make background white
+        self.new_site_window.configure(bg="white")
+
         # Create a variable to store the entered text
         self.username = tk.StringVar(None)
         self.password = tk.StringVar(None)
 
         # Create information label
-        self.label = tk.Label(self.new_site_window, text="Register a new site")
+        self.label = tk.Label(
+            self.new_site_window, text="Register a new site", background="white", font=("Helvetica", 16)
+        )
         self.label.pack()
 
         # Request the university list
@@ -845,34 +1286,61 @@ class newSite(tk.Frame):
             self.sorted_countries = pd.DataFrame(unique_countries).sort_values("country").reset_index(drop=True)
 
             # Create Directus connexion fields
-            label_username = tk.Label(self.new_site_window, text="Your directus username:")
-            label_username.pack()
-            entry_username = tk.Entry(self.new_site_window, textvariable=self.username)
+            label_username = tk.Label(
+                self.new_site_window, text="Directus username:", background="white", font=("Helvetica", 12)
+            )
+            label_username.pack(pady=(20, 5))
+            entry_username = tk.Entry(
+                self.new_site_window, textvariable=self.username, relief="flat", font=("Helvetica", 11)
+            )
             entry_username.pack()
 
-            label_password = tk.Label(self.new_site_window, text="Your directus password:")
-            label_password.pack()
-            entry_password = tk.Entry(self.new_site_window, textvariable=self.password, show="*")
+            label_password = tk.Label(
+                self.new_site_window, text="Directus password:", background="white", font=("Helvetica", 12)
+            )
+            label_password.pack(pady=(20, 5))
+            entry_password = tk.Entry(
+                self.new_site_window, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
+            )
             entry_password.pack()
 
             # Create the country selection box
-            label_country = tk.Label(self.new_site_window, text="Search for a country")
-            label_country.pack()
+            label_country = tk.Label(
+                self.new_site_window, text="Search for a country:", background="white", font=("Helvetica", 12)
+            )
+            label_country.pack(pady=(20, 5))
+
+            # Create a style for the combobox
+            style = ttk.Style()
+            style.configure(
+                "TCombobox",
+                background="white",
+                relief="flat",
+                borderwidth=0.5,
+                highlightthickness=0,
+                bordercolor="#f0f0f0",
+            )
 
             self.combobox_country = ttk.Combobox(self.new_site_window)
             self.combobox_country.pack()
 
-            self.listbox_country = tk.Listbox(self.new_site_window, height=3, width=50, font=("Helvetica", 10))
+            self.listbox_country = tk.Listbox(
+                self.new_site_window, height=3, width=50, font=("Helvetica", 10), relief="flat"
+            )
             self.listbox_country.pack()
 
             # Create the university selection box
-            label_university = tk.Label(self.new_site_window, text="Search for a university")
-            label_university.pack()
+            label_university = tk.Label(
+                self.new_site_window, text="Search for a university:", background="white", font=("Helvetica", 12)
+            )
+            label_university.pack(pady=(20, 5))
 
             self.combobox_university = ttk.Combobox(self.new_site_window)
             self.combobox_university.pack()
 
-            self.listbox_university = tk.Listbox(self.new_site_window, height=3, width=50, font=("Helvetica", 10))
+            self.listbox_university = tk.Listbox(
+                self.new_site_window, height=3, width=50, font=("Helvetica", 10), relief="flat"
+            )
             self.listbox_university.pack()
 
             # Bind the event handlers for country and university selection
@@ -886,19 +1354,37 @@ class newSite(tk.Frame):
             )
 
             # prints the selected site to inform the user which site is actually selected
-            self.label_info = tk.Label(self.new_site_window, text="Selected site:")
-            self.label_info.pack()
+            self.label_info = tk.Label(
+                self.new_site_window, text="Selected site:", background="white", font=("Helvetica", 12)
+            )
+            self.label_info.pack(pady=(20, 5))
 
             # Create the frame for action buttons
             frame_submit = tk.Frame(self.new_site_window)
             frame_submit.pack(pady=(50, 0))
 
             # Submit button
-            button_submit = tk.Button(frame_submit, text="Submit", width=17, command=self.test_connection)
+            button_submit = tk.Button(
+                frame_submit,
+                text="Submit",
+                width=17,
+                font=("Helvetica", 11),
+                background="#f0f0f0",
+                relief="flat",
+                command=self.test_connection,
+            )
             button_submit.pack(side="left")
 
             # Back to main button
-            button_back = tk.Button(frame_submit, text="Back to Main Page", width=17, command=self.on_exit)
+            button_back = tk.Button(
+                frame_submit,
+                text="Back to Main Page",
+                width=17,
+                font=("Helvetica", 11),
+                background="#f0f0f0",
+                relief="flat",
+                command=self.on_exit,
+            )
             button_back.pack(side="right")
 
         # If API request to Hipo fails, informs the user
@@ -1055,7 +1541,8 @@ class newSite(tk.Frame):
 # Create the main window
 root = tk.Tk()
 root.title("EMI Label Creator")
-root.minsize(600, 300)
+root.minsize(600, 260)
+root.configure(bg="white")
 
 # Create the main page
 main_page = MainPage(root)

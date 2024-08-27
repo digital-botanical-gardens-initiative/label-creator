@@ -11,7 +11,7 @@ from reportlab.lib.units import cm
 from reportlab.pdfgen import canvas
 
 
-def main(csv_labels_window: tk.Toplevel, root: tk.Tk, label: tk.Label) -> None:
+def main(csv_labels_window: tk.Toplevel, root: tk.Tk) -> None:
     # Load variables
     file_path = str(os.environ.get("FILE_PATH"))
     output_folder = str(os.environ.get("OUTPUT_FOLDER"))
