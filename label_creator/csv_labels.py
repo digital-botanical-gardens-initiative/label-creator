@@ -430,15 +430,15 @@ def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> 
 
     # Set the dimensions of the labels in centimeters
     label_width_cm = 2.54 * cm
-    label_height_cm = 0.999 * cm
+    label_height_cm = 1 * cm
 
     # Set the spacing between labels
     x_spacing = label_width_cm + 0.25 * cm
     y_spacing = label_height_cm
 
     # Set the initial position for drawing
-    x_start = 0.1 * cm
-    y_start = A4[1] - 1.46 * cm
+    x_start = 0.1 * cm # On Per04 printer, via VPRint and for small labels, the x_start is 0.1 cm
+    y_start = A4[1] - 1.50 * cm # On Per04 printer,  via VPRint  and for small labels, the y_start is 1.50 cm
 
     # Iterate over the value groups
     for group in value_groups:
