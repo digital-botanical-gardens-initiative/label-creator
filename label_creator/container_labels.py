@@ -1,11 +1,13 @@
 import os
 import tkinter as tk
+from io import BytesIO
 
 import pandas as pd
 import qrcode
 import requests
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 
@@ -139,15 +141,18 @@ def create_big_labels_pdf(values: list, output_folder: str) -> None:
             qr_pos_y = pos_y + 0.2 * cm
 
             # Draw the QR code
-            qr_img_path = "qr_code.png"
-            qr_img.save(qr_img_path)
-            pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
+            qr_img_path = BytesIO()
+            qr_img.save(qr_img_path, format="PNG")
+            qr_img_path.seek(0)
+            image = ImageReader(qr_img_path)
+            pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
 
         # Move to the next page
         pdf.showPage()
 
     # Save and close the PDF file
     pdf.save()
+    qr_img_path.close()
 
 
 def create_medium_labels_pdf(values: list, output_folder: str) -> None:
@@ -210,15 +215,18 @@ def create_medium_labels_pdf(values: list, output_folder: str) -> None:
             qr_pos_y = pos_y + 0.2 * cm
 
             # Draw the QR code
-            qr_img_path = "qr_code.png"
-            qr_img.save(qr_img_path)
-            pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
+            qr_img_path = BytesIO()
+            qr_img.save(qr_img_path, format="PNG")
+            qr_img_path.seek(0)
+            image = ImageReader(qr_img_path)
+            pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
 
         # Move to the next page
         pdf.showPage()
 
     # Save and close the PDF file
     pdf.save()
+    qr_img_path.close()
 
 
 def create_small_labels_pdf(values: list, output_folder: str) -> None:
@@ -281,12 +289,15 @@ def create_small_labels_pdf(values: list, output_folder: str) -> None:
             qr_pos_y = pos_y + 0.3 * cm
 
             # Draw the QR code
-            qr_img_path = "qr_code.png"
-            qr_img.save(qr_img_path)
-            pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
+            qr_img_path = BytesIO()
+            qr_img.save(qr_img_path, format="PNG")
+            qr_img_path.seek(0)
+            image = ImageReader(qr_img_path)
+            pdf.drawImage(image, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
 
         # Move to the next page
         pdf.showPage()
 
     # Save and close the PDF file
     pdf.save()
+    qr_img_path.close()

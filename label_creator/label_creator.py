@@ -41,7 +41,7 @@ class MainPage(tk.Frame):
         # Put white background
         self.configure(bg="white")
 
-        if tag <= 2.0:
+        if tag <= 2.1:
             # Create GUI elements for labels
             label_labels = tk.Label(self, text="Create labels", background="white", font=("Helvetica", 16))
             label_labels.pack()

@@ -1,6 +1,7 @@
 import math
 import os
 import tkinter as tk
+from io import BytesIO
 from typing import Tuple
 
 import pandas as pd
@@ -8,6 +9,7 @@ import qrcode
 from pandas import DataFrame
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
+from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 
 
@@ -99,9 +101,11 @@ def create_big_labels_pdf(df: DataFrame, values: list, output_folder: str) -> No
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
 
             elif (df["char_length"][i] > 2.3 and df["char_length"][i] <= 4.2).any():
                 # Set the font size
@@ -129,9 +133,11 @@ def create_big_labels_pdf(df: DataFrame, values: list, output_folder: str) -> No
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
 
             elif (df["char_length"][i] > 4.2 and df["char_length"][i] <= 7.4).any():
                 # Set the font size
@@ -159,9 +165,11 @@ def create_big_labels_pdf(df: DataFrame, values: list, output_folder: str) -> No
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
 
             elif (df["char_length"][i] > 7.4 and df["char_length"][i] <= 9.9).any():
                 # Set the font size
@@ -191,9 +199,11 @@ def create_big_labels_pdf(df: DataFrame, values: list, output_folder: str) -> No
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
 
             else:
                 # Draw the label text
@@ -218,15 +228,18 @@ def create_big_labels_pdf(df: DataFrame, values: list, output_folder: str) -> No
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.75 * cm, height=1.75 * cm)
 
         # Move to the next page
         pdf.showPage()
 
     # Save and close the PDF file
     pdf.save()
+    qr_img_path.close()
 
 
 def create_medium_labels_pdf(df: DataFrame, values: list, output_folder: str) -> None:
@@ -290,9 +303,11 @@ def create_medium_labels_pdf(df: DataFrame, values: list, output_folder: str) ->
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
 
             elif (df["char_length"][i] > 1.9 and df["char_length"][i] <= 3.8).any():
                 # Set the font size
@@ -320,9 +335,11 @@ def create_medium_labels_pdf(df: DataFrame, values: list, output_folder: str) ->
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
 
             elif (df["char_length"][i] > 3.8 and df["char_length"][i] <= 7).any():
                 # Set the font size
@@ -350,9 +367,11 @@ def create_medium_labels_pdf(df: DataFrame, values: list, output_folder: str) ->
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
 
             elif (df["char_length"][i] > 7 and df["char_length"][i] <= 9.5).any():
                 # Set the font size
@@ -382,9 +401,11 @@ def create_medium_labels_pdf(df: DataFrame, values: list, output_folder: str) ->
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
 
             else:
                 # Draw the label text
@@ -409,15 +430,18 @@ def create_medium_labels_pdf(df: DataFrame, values: list, output_folder: str) ->
                 qr_pos_y = pos_y + 0.2 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_y, width=1.35 * cm, height=1.35 * cm)
 
         # Move to the next page
         pdf.showPage()
 
     # Save and close the PDF file
     pdf.save()
+    qr_img_path.close()
 
 
 def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> None:
@@ -437,8 +461,8 @@ def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> 
     y_spacing = label_height_cm
 
     # Set the initial position for drawing
-    x_start = 0.1 * cm # On Per04 printer, via VPRint and for small labels, the x_start is 0.1 cm
-    y_start = A4[1] - 1.50 * cm # On Per04 printer,  via VPRint  and for small labels, the y_start is 1.50 cm
+    x_start = 0.1 * cm  # On Per04 printer, via VPRint and for small labels, the x_start is 0.1 cm
+    y_start = A4[1] - 1.50 * cm  # On Per04 printer,  via VPRint  and for small labels, the y_start is 1.50 cm
 
     # Iterate over the value groups
     for group in value_groups:
@@ -479,9 +503,11 @@ def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> 
                 qr_pos_y = pos_y + 0.3 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
 
             elif (df["char_length"][i] > 1.9 and df["char_length"][i] <= 3.6).any():
                 # Set the font size
@@ -506,9 +532,11 @@ def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> 
                 qr_pos_y = pos_y + 0.3 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
 
             elif (df["char_length"][i] > 3.6 and df["char_length"][i] <= 7).any():
                 # Set the font size
@@ -534,9 +562,11 @@ def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> 
                 qr_pos_y = pos_y + 0.3 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
 
             elif (df["char_length"][i] > 7 and df["char_length"][i] <= 9.2).any():
                 # Set the font size
@@ -562,9 +592,11 @@ def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> 
                 qr_pos_y = pos_y + 0.3 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
 
             else:
                 # Draw the label text
@@ -585,15 +617,18 @@ def create_small_labels_pdf(df: DataFrame, values: list, output_folder: str) -> 
                 qr_pos_y = pos_y + 0.3 * cm
 
                 # Draw the QR code
-                qr_img_path = "qr_code.png"
-                qr_img.save(qr_img_path)
-                pdf.drawInlineImage(qr_img_path, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
+                qr_img_path = BytesIO()
+                qr_img.save(qr_img_path, format="PNG")
+                qr_img_path.seek(0)
+                image = ImageReader(qr_img_path)
+                pdf.drawImage(image, qr_pos_x, qr_pos_x, qr_pos_y, width=0.8 * cm, height=0.8 * cm)
 
         # Move to the next page
         pdf.showPage()
 
     # Save and close the PDF file
     pdf.save()
+    qr_img_path.close()
 
 
 def calculate_text_width(text: str, font_name: str, font_size: int) -> float:
