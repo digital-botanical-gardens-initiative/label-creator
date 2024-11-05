@@ -38,16 +38,36 @@ class MainPage(tk.Frame):
         data = response.json()["tag_name"]
         tag = float(str.replace(data, "v", ""))
 
-        # Put white background
-        self.configure(bg="white")
+        self.root = parent
 
-        if tag <= 2.1:
+        # Put white background
+        self.root.configure(bg="white")
+
+        # Create a canvas and scrollbar for scrollable functionality
+        self.canvas = tk.Canvas(self.root, bg="white", highlightthickness=0)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Add a scrollbar linked to the canvas
+        scrollbar = ttk.Scrollbar(self.root, orient="vertical", command=self.canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill="y")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame inside the canvas to hold all your widgets
+        self.scrollable_frame = tk.Frame(self.canvas, bg="white")
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        # Add the frame to the canvas
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        if tag <= 2.2:
             # Create GUI elements for labels
-            label_labels = tk.Label(self, text="Create labels", background="white", font=("Helvetica", 16))
+            label_labels = tk.Label(
+                self.scrollable_frame, text="Create labels", background="white", font=("Helvetica", 16)
+            )
             label_labels.pack()
 
             button_new_labels = tk.Button(
-                self,
+                self.scrollable_frame,
                 text="Generate sample labels",
                 width=40,
                 font=("Helvetica", 11),
@@ -58,7 +78,7 @@ class MainPage(tk.Frame):
             button_new_labels.pack()
 
             button_mobile_container = tk.Button(
-                self,
+                self.scrollable_frame,
                 text="Generate containers labels",
                 width=40,
                 font=("Helvetica", 11),
@@ -69,7 +89,7 @@ class MainPage(tk.Frame):
             button_mobile_container.pack()
 
             button_existing = tk.Button(
-                self,
+                self.scrollable_frame,
                 text="Print labels from a CSV",
                 width=40,
                 font=("Helvetica", 11),
@@ -80,7 +100,7 @@ class MainPage(tk.Frame):
             button_existing.pack()
 
             # Create site frame to add a space
-            frame_site = tk.Frame(self, background="white")
+            frame_site = tk.Frame(self.scrollable_frame, background="white")
             frame_site.pack(pady=(70, 10))
 
             # Create GUI elements to add a new site
@@ -99,10 +119,14 @@ class MainPage(tk.Frame):
                 command=self.open_new_site,
             )
             button_new_site.pack()
+
+            self.scrollable_frame.update_idletasks()
+            self.update_window_size(False)
+
         else:
             # Create frame to center the text
-            frame_new = tk.Frame(self, background="white")
-            frame_new.pack(pady=(100, 10))
+            frame_new = tk.Frame(self.scrollable_frame, background="white")
+            frame_new.pack()
 
             # Create GUI elements to ask user to download the latest version
             label_labels = tk.Label(
@@ -121,21 +145,41 @@ class MainPage(tk.Frame):
                 relief="flat",
                 command=self.download_last_version,
             )
-            button_new_labels.pack()
+            button_new_labels.pack(pady=50)
+
+            self.scrollable_frame.update_idletasks()
+            self.update_window_size(True)
+
+    def update_window_size(self, isUpdate: bool) -> None:
+        # Get screen height
+        screen_height = self.root.winfo_screenheight()
+
+        frame_heigth = self.scrollable_frame.winfo_height()
+
+        height = frame_heigth if int(screen_height * 0.8) >= frame_heigth else int(screen_height * 0.8)
+
+        # Get width
+        frame_width = self.scrollable_frame.winfo_width()
+
+        width = (frame_width + 15 if isUpdate else frame_width) if frame_width > 1 else 380
+
+        # Set the window height and width and restrict resizing
+        self.root.geometry(f"{width}x{height}")
+        self.root.resizable(False, False)
 
     def open_sample_labels(self) -> None:
         # Create a new Toplevel window for the new labels
         sample_labels_window = tk.Toplevel(root)
         sample_labels_window.title("Generate sample labels")
-        sample_labels_window.minsize(600, 650)
-        # Launches the corresponding class
+
+        # Launch the corresponding class
         sampleLabels(sample_labels_window, root)
 
     def open_container_labels(self) -> None:
         # Create a new Toplevel window for the mobile containers
         container_labels_window = tk.Toplevel(root)
         container_labels_window.title("Generate containers labels")
-        container_labels_window.minsize(650, 580)
+
         # Launches the corresponding class
         containerLabels(container_labels_window, root)
 
@@ -143,7 +187,7 @@ class MainPage(tk.Frame):
         # Create a new Toplevel window for the labels from CSV
         csv_labels_window = tk.Toplevel(root)
         csv_labels_window.title("Generate labels from a CSV")
-        csv_labels_window.minsize(650, 470)
+
         # Launches the corresponding class
         csvLabels(csv_labels_window, root)
 
@@ -151,7 +195,7 @@ class MainPage(tk.Frame):
         # Create a new Toplevel window to add a new site
         new_site_window = tk.Toplevel(root)
         new_site_window.title("Add a new site")
-        new_site_window.minsize(550, 540)
+
         # Launches the corresponding class
         newSite(new_site_window, root)
 
@@ -174,7 +218,6 @@ class sampleLabels(tk.Frame):
         Returns:
             None
         """
-
         # Makes tk elements available across functions
         self.sample_labels_window = sample_labels_window
         self.root = root
@@ -188,6 +231,22 @@ class sampleLabels(tk.Frame):
         # Make background white
         self.sample_labels_window.configure(bg="white")
 
+        # Create a canvas and scrollbar for scrollable functionality
+        self.canvas = tk.Canvas(self.sample_labels_window, bg="white", highlightthickness=0)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Add a scrollbar linked to the canvas
+        scrollbar = ttk.Scrollbar(self.sample_labels_window, orient="vertical", command=self.canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill="y")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame inside the canvas to hold all your widgets
+        self.scrollable_frame = tk.Frame(self.canvas, bg="white")
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        # Add the frame to the canvas
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
         # Create variables to store the user entered parameters
         self.username = tk.StringVar(None)
         self.password = tk.StringVar(None)
@@ -197,7 +256,7 @@ class sampleLabels(tk.Frame):
 
         # Create informations GUI
         self.label_info = tk.Label(
-            self.sample_labels_window,
+            self.scrollable_frame,
             text="Generates avery L4736, L4732 or L4731 labels",
             background="white",
             font=("Helvetica", 16),
@@ -206,7 +265,7 @@ class sampleLabels(tk.Frame):
 
         # Create informations GUI
         self.label_info_2 = tk.Label(
-            self.sample_labels_window,
+            self.scrollable_frame,
             text="and reserves the codes in directus",
             background="white",
             font=("Helvetica", 16),
@@ -214,7 +273,7 @@ class sampleLabels(tk.Frame):
         self.label_info_2.pack()
 
         # Create informations frame
-        frame_info = tk.Frame(self.sample_labels_window, background="white")
+        frame_info = tk.Frame(self.scrollable_frame, background="white")
         frame_info.pack(pady=(10, 20))
 
         # L4736 info
@@ -261,20 +320,20 @@ class sampleLabels(tk.Frame):
 
         # Create text entry fields
         label_username = tk.Label(
-            self.sample_labels_window, text="Directus username:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Directus username:", background="white", font=("Helvetica", 12)
         )
         label_username.pack(pady=(20, 5))
         entry_username = tk.Entry(
-            self.sample_labels_window, textvariable=self.username, relief="flat", font=("Helvetica", 11)
+            self.scrollable_frame, textvariable=self.username, relief="flat", font=("Helvetica", 11)
         )
         entry_username.pack()
 
         label_password = tk.Label(
-            self.sample_labels_window, text="Directus password:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Directus password:", background="white", font=("Helvetica", 12)
         )
         label_password.pack(pady=(20, 5))
         entry_password = tk.Entry(
-            self.sample_labels_window, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
+            self.scrollable_frame, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
         )
         entry_password.pack()
 
@@ -289,10 +348,10 @@ class sampleLabels(tk.Frame):
 
         # Choose the project
         project_label = tk.Label(
-            self.sample_labels_window, text="Choose your project:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Choose your project:", background="white", font=("Helvetica", 12)
         )
         project_label.pack(pady=(20, 5))
-        dropdown_project = tk.OptionMenu(self.sample_labels_window, self.project, *project_names)
+        dropdown_project = tk.OptionMenu(self.scrollable_frame, self.project, *project_names)
         # Customizing the OptionMenu to appear flat
         dropdown_project.config(font=("Helvetica", 11), bg="#f0f0f0", fg="black", bd=0, highlightthickness=0)
         dropdown_project.pack()
@@ -304,12 +363,12 @@ class sampleLabels(tk.Frame):
 
         # Create label to choose label format
         self.label_format = tk.Label(
-            self.sample_labels_window, text="Choose the label format:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Choose the label format:", background="white", font=("Helvetica", 12)
         )
         self.label_format.pack(pady=(20, 5))
 
         # Frame to hold radio buttons
-        radio_frame = tk.Frame(self.sample_labels_window, bg="white")
+        radio_frame = tk.Frame(self.scrollable_frame, bg="white")
         radio_frame.pack()
 
         # Set to medium size by default
@@ -354,22 +413,20 @@ class sampleLabels(tk.Frame):
 
         # Number of labels
         number_label = tk.Label(
-            self.sample_labels_window, text="Number of labels:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Number of labels:", background="white", font=("Helvetica", 12)
         )
         number_label.pack(pady=(20, 5))
-        number_entry = tk.Entry(
-            self.sample_labels_window, textvariable=self.number, relief="flat", font=("Helvetica", 11)
-        )
+        number_entry = tk.Entry(self.scrollable_frame, textvariable=self.number, relief="flat", font=("Helvetica", 11))
         self.number.set(80)
         number_entry.pack()
 
         # Asks where to store the pdf
         output_label = tk.Label(
-            self.sample_labels_window, text="Select pdf output path:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Select pdf output path:", background="white", font=("Helvetica", 12)
         )
         output_label.pack(pady=(20, 5))
         self.output_button = tk.Button(
-            self.sample_labels_window,
+            self.scrollable_frame,
             text="select path",
             width=17,
             font=("Helvetica", 11),
@@ -380,7 +437,7 @@ class sampleLabels(tk.Frame):
         self.output_button.pack()
 
         # Create frame for action buttons
-        frame_submit = tk.Frame(self.sample_labels_window)
+        frame_submit = tk.Frame(self.scrollable_frame)
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
@@ -407,6 +464,9 @@ class sampleLabels(tk.Frame):
         )
         button_back.pack(side="right")
 
+        self.scrollable_frame.update_idletasks()
+        self.update_window_size()
+
     # Function that manages the behaviour when user quits the page
     def on_exit(self) -> None:
         """
@@ -421,6 +481,23 @@ class sampleLabels(tk.Frame):
         # Destroy the actual page and reopen the main page
         self.sample_labels_window.destroy()
         self.root.deiconify()
+
+    def update_window_size(self) -> None:
+        # Get screen height
+        screen_height = self.sample_labels_window.winfo_screenheight()
+
+        frame_heigth = self.scrollable_frame.winfo_height()
+
+        height = frame_heigth if int(screen_height * 0.8) >= frame_heigth else int(screen_height * 0.8)
+
+        # Get width
+        frame_width = self.scrollable_frame.winfo_width()
+
+        width = frame_width + 15 if frame_width > 1 else 475
+
+        # Set the window height and width and restrict resizing
+        self.sample_labels_window.geometry(f"{width}x{height}")
+        self.sample_labels_window.resizable(False, False)
 
     # Function to open the link to avery labels
     def open_link(self, model: int, event: Event) -> None:
@@ -557,10 +634,14 @@ class sampleLabels(tk.Frame):
             # If user didn't select an EMI project
             self.label_info.config(text="Please select an EMI project!", foreground="red")
             self.label_info_2.config(text="")
+
         else:
             # If there are multiple parameters errors
             self.label_info.config(text="Multiple parameters errors!", foreground="red")
             self.label_info_2.config(text="")
+
+        self.label_info.update_idletasks()
+        self.update_window_size()
 
 
 class containerLabels(tk.Frame):
@@ -583,11 +664,27 @@ class containerLabels(tk.Frame):
         # Hide main page
         self.root.withdraw()
 
-        # Define behaviour of the closing button with function on_exit
+        # Associates the close button to a specific action managed by on_exit function
         self.container_labels_window.protocol("WM_DELETE_WINDOW", self.on_exit)
 
         # Make background white
         self.container_labels_window.configure(bg="white")
+
+        # Create a canvas and scrollbar for scrollable functionality
+        self.canvas = tk.Canvas(self.container_labels_window, bg="white", highlightthickness=0)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Add a scrollbar linked to the canvas
+        scrollbar = ttk.Scrollbar(self.container_labels_window, orient="vertical", command=self.canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill="y")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame inside the canvas to hold all your widgets
+        self.scrollable_frame = tk.Frame(self.canvas, bg="white")
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        # Add the frame to the canvas
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
         # Create a variable to store the entered text
         self.username = tk.StringVar(None)
@@ -597,8 +694,8 @@ class containerLabels(tk.Frame):
 
         # Create informations GUI
         self.label_info = tk.Label(
-            self.container_labels_window,
-            text="Generates avery L4736, L4732 or L4731 container labels",
+            self.scrollable_frame,
+            text="Generates avery L4736, L4732 or L4731 container",
             background="white",
             font=("Helvetica", 16),
         )
@@ -606,20 +703,20 @@ class containerLabels(tk.Frame):
 
         # Create informations GUI
         self.label_info_2 = tk.Label(
-            self.container_labels_window,
-            text="and reserves the codes in directus",
+            self.scrollable_frame,
+            text="labels and reserves the codes in directus",
             background="white",
             font=("Helvetica", 16),
         )
         self.label_info_2.pack()
 
         # Create informations frame
-        frame_info = tk.Frame(self.container_labels_window, background="white")
-        frame_info.pack(pady=(10, 20))
+        self.frame_info = tk.Frame(self.scrollable_frame, background="white")
+        self.frame_info.pack(pady=(10, 20))
 
         # L4736 info
         self.label_l4736 = tk.Label(
-            frame_info,
+            self.frame_info,
             text="L4736 informations",
             cursor="hand2",
             foreground="blue",
@@ -633,7 +730,7 @@ class containerLabels(tk.Frame):
 
         # L4732 info
         self.label_l4732 = tk.Label(
-            frame_info,
+            self.frame_info,
             text="L4732 informations",
             cursor="hand2",
             foreground="blue",
@@ -647,7 +744,7 @@ class containerLabels(tk.Frame):
 
         # L4731 info
         self.label_l4731 = tk.Label(
-            frame_info,
+            self.frame_info,
             text="L4731 Informations",
             cursor="hand2",
             foreground="blue",
@@ -661,31 +758,31 @@ class containerLabels(tk.Frame):
 
         # Create text entry fields
         label_username = tk.Label(
-            self.container_labels_window, text="Directus username:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Directus username:", background="white", font=("Helvetica", 12)
         )
         label_username.pack(pady=(20, 5))
         entry_username = tk.Entry(
-            self.container_labels_window, textvariable=self.username, relief="flat", font=("Helvetica", 11)
+            self.scrollable_frame, textvariable=self.username, relief="flat", font=("Helvetica", 11)
         )
         entry_username.pack()
 
         label_password = tk.Label(
-            self.container_labels_window, text="Directus password:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Directus password:", background="white", font=("Helvetica", 12)
         )
         label_password.pack(pady=(20, 5))
         entry_password = tk.Entry(
-            self.container_labels_window, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
+            self.scrollable_frame, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
         )
         entry_password.pack()
 
         # Create label to choose label format
         self.label_format = tk.Label(
-            self.container_labels_window, text="Choose the label format:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Choose the label format:", background="white", font=("Helvetica", 12)
         )
         self.label_format.pack(pady=(20, 5))
 
         # Frame to hold radio buttons
-        radio_frame = tk.Frame(self.container_labels_window, bg="white")
+        radio_frame = tk.Frame(self.scrollable_frame, bg="white")
         radio_frame.pack()
 
         # Set to medium size by default
@@ -730,22 +827,20 @@ class containerLabels(tk.Frame):
 
         # Number of labels
         number_label = tk.Label(
-            self.container_labels_window, text="Number of labels:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Number of labels:", background="white", font=("Helvetica", 12)
         )
         number_label.pack(pady=(20, 5))
-        number_entry = tk.Entry(
-            self.container_labels_window, textvariable=self.number, relief="flat", font=("Helvetica", 11)
-        )
+        number_entry = tk.Entry(self.scrollable_frame, textvariable=self.number, relief="flat", font=("Helvetica", 11))
         self.number.set(80)
         number_entry.pack()
 
         # Asks where to store the pdf
         output_label = tk.Label(
-            self.container_labels_window, text="Select pdf output path:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Select pdf output path:", background="white", font=("Helvetica", 12)
         )
         output_label.pack(pady=(20, 5))
         self.output_button = tk.Button(
-            self.container_labels_window,
+            self.scrollable_frame,
             text="select path",
             font=("Helvetica", 11),
             width=17,
@@ -756,7 +851,7 @@ class containerLabels(tk.Frame):
         self.output_button.pack()
 
         # Frame for action buttons
-        frame_submit = tk.Frame(self.container_labels_window)
+        frame_submit = tk.Frame(self.scrollable_frame)
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
@@ -767,7 +862,7 @@ class containerLabels(tk.Frame):
             font=("Helvetica", 11),
             background="#f0f0f0",
             relief="flat",
-            command=self.test_parameters,
+            command=self.test_connection,
         )
         button_submit.pack(side="left")
 
@@ -783,6 +878,9 @@ class containerLabels(tk.Frame):
         )
         button_back.pack(side="right")
 
+        self.scrollable_frame.update_idletasks()
+        self.update_window_size()
+
     # Function that closes gracefully the active page when user decides to quit
     def on_exit(self) -> None:
         """
@@ -797,6 +895,23 @@ class containerLabels(tk.Frame):
         # Destroy actual page and displays the main page
         self.container_labels_window.destroy()
         self.root.deiconify()
+
+    def update_window_size(self) -> None:
+        # Get screen height
+        screen_height = self.container_labels_window.winfo_screenheight()
+
+        frame_heigth = self.scrollable_frame.winfo_height()
+
+        height = frame_heigth if int(screen_height * 0.8) >= frame_heigth else int(screen_height * 0.8)
+
+        # Get width
+        frame_width = self.scrollable_frame.winfo_width()
+
+        width = frame_width + 15 if frame_width > 1 else 510
+
+        # Set the window height and width and restrict resizing
+        self.container_labels_window.geometry(f"{width}x{height}")
+        self.container_labels_window.resizable(False, False)
 
     # Function to open the link to avery labels
     def open_link(self, model: int, event: Event) -> None:
@@ -826,7 +941,7 @@ class containerLabels(tk.Frame):
             folder = parts[-1]
             self.output_button.config(text=folder)
 
-    def test_parameters(self) -> None:
+    def test_connection(self) -> None:
         """
         Controls that user has passed all the necessary arguments.
 
@@ -851,7 +966,34 @@ class containerLabels(tk.Frame):
 
         # Check that user entered the correct values
         if self.username.get() and self.password.get() and number_value > 0 and output != "empty":
-            self.test_connection()
+            # Retrieve the entered values
+            os.environ["USERNAME"] = self.username.get()
+            os.environ["PASSWORD"] = self.password.get()
+            os.environ["LABEL_SIZE"] = str(self.label_size.get())
+            os.environ["NUMBER"] = str(self.number.get())
+            os.environ["OUTPUT_FOLDER"] = self.output_dir
+
+            # Define the Directus base URL
+            base_url = "https://emi-collection.unifr.ch/directus"
+
+            # Define the login endpoint URL
+            login_url = base_url + "/auth/login"
+            # Create a session object for making requests
+            session = requests.Session()
+            # Send a POST request to the login endpoint
+            response = session.post(login_url, json={"email": self.username.get(), "password": self.password.get()})
+            # Test if connection is successful
+            if response.status_code == 200:
+                # Stores the access token
+                data = response.json()["data"]
+                access_token = data["access_token"]
+                os.environ["ACCESS_TOKEN"] = str(access_token)
+                container_labels.main(self.container_labels_window, self.root, self.label_info, self.label_info_2)
+
+            # If connection to directus failed, informs the user that connection failed.
+            else:
+                self.label_info.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
+                self.label_info_2.config(text="")
 
         elif (not self.username.get() or not self.password.get()) and number_value > 0 and output != "empty":
             # If user didn't enter username or password
@@ -868,45 +1010,8 @@ class containerLabels(tk.Frame):
             self.label_info.config(text="Multiple parameters errors!", foreground="red")
             self.label_info_2.config(text="")
 
-    def test_connection(self) -> None:
-        """
-        Tries to connect to directus and if connection is successful,
-        stores the access token for further requests.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        # Retrieve the entered values
-        os.environ["USERNAME"] = self.username.get()
-        os.environ["PASSWORD"] = self.password.get()
-        os.environ["LABEL_SIZE"] = str(self.label_size.get())
-        os.environ["NUMBER"] = str(self.number.get())
-        os.environ["OUTPUT_FOLDER"] = self.output_dir
-
-        # Define the Directus base URL
-        base_url = "https://emi-collection.unifr.ch/directus"
-
-        # Define the login endpoint URL
-        login_url = base_url + "/auth/login"
-        # Create a session object for making requests
-        session = requests.Session()
-        # Send a POST request to the login endpoint
-        response = session.post(login_url, json={"email": self.username.get(), "password": self.password.get()})
-        # Test if connection is successful
-        if response.status_code == 200:
-            # Stores the access token
-            data = response.json()["data"]
-            access_token = data["access_token"]
-            os.environ["ACCESS_TOKEN"] = str(access_token)
-            container_labels.main(self.container_labels_window, self.root, self.label_info, self.label_info_2)
-
-        # If connection to directus failed, informs the user that connection failed.
-        else:
-            self.label_info.config(text="Connexion to directus failed, verify your credentials!", foreground="red")
-            self.label_info_2.config(text="")
+        self.label_info.update_idletasks()
+        self.update_window_size()
 
 
 class csvLabels(tk.Frame):
@@ -935,6 +1040,22 @@ class csvLabels(tk.Frame):
         # Make background white
         self.csv_labels_window.configure(bg="white")
 
+        # Create a canvas and scrollbar for scrollable functionality
+        self.canvas = tk.Canvas(self.csv_labels_window, bg="white", highlightthickness=0)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Add a scrollbar linked to the canvas
+        scrollbar = ttk.Scrollbar(self.csv_labels_window, orient="vertical", command=self.canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill="y")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame inside the canvas to hold all your widgets
+        self.scrollable_frame = tk.Frame(self.canvas, bg="white")
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        # Add the frame to the canvas
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
         # Create a variable to store the entered text
         self.number_ext = tk.StringVar(None)
         self.number_inj = tk.StringVar(None)
@@ -942,7 +1063,7 @@ class csvLabels(tk.Frame):
 
         # Create informations GUI
         self.label_info = tk.Label(
-            self.csv_labels_window,
+            self.scrollable_frame,
             text="Generates avery L4736, L4732 or L4731 labels from a CSV file",
             background="white",
             font=("Helvetica", 16),
@@ -950,7 +1071,7 @@ class csvLabels(tk.Frame):
         self.label_info.pack()
 
         # Create informations frame
-        frame_info = tk.Frame(self.csv_labels_window, background="white")
+        frame_info = tk.Frame(self.scrollable_frame, background="white")
         frame_info.pack(pady=(10, 20))
 
         # L4736 info
@@ -996,7 +1117,7 @@ class csvLabels(tk.Frame):
         self.label_l4731.bind("<Button-1>", lambda event: self.open_link(4731, event))
 
         import_label = tk.Label(
-            self.csv_labels_window,
+            self.scrollable_frame,
             text="CSV is expected to have a unique column containing codes, without header.",
             background="white",
             font=("Helvetica", 11),
@@ -1004,7 +1125,7 @@ class csvLabels(tk.Frame):
         import_label.pack()
 
         warning_label = tk.Label(
-            self.csv_labels_window,
+            self.scrollable_frame,
             text="Be careful, this mode doesn't verify that labels are unique and doesn't enter them into Directus.",
             foreground="orange",
             background="white",
@@ -1014,11 +1135,11 @@ class csvLabels(tk.Frame):
 
         # Import the CSV
         self.csv_label = tk.Label(
-            self.csv_labels_window, text="Choose your CSV", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Choose your CSV", background="white", font=("Helvetica", 12)
         )
         self.csv_label.pack(pady=(20, 5))
         self.import_button = tk.Button(
-            self.csv_labels_window,
+            self.scrollable_frame,
             text="select CSV:",
             width=17,
             font=("Helvetica", 11),
@@ -1030,12 +1151,12 @@ class csvLabels(tk.Frame):
 
         # Create label to choose label format
         self.label_format = tk.Label(
-            self.csv_labels_window, text="Choose the label format:", background="white", font=("Helvetica", 12)
+            self.scrollable_frame, text="Choose the label format:", background="white", font=("Helvetica", 12)
         )
         self.label_format.pack(pady=(20, 5))
 
         # Frame to hold radio buttons
-        radio_frame = tk.Frame(self.csv_labels_window, bg="white")
+        radio_frame = tk.Frame(self.scrollable_frame, bg="white")
         radio_frame.pack()
 
         # Set to medium size by default
@@ -1080,14 +1201,14 @@ class csvLabels(tk.Frame):
 
         # Create elements to select output directory
         output_label = tk.Label(
-            self.csv_labels_window,
+            self.scrollable_frame,
             text="Select the output path for the pdf files:",
             background="white",
             font=("Helvetica", 12),
         )
         output_label.pack(pady=(20, 5))
         self.output_button = tk.Button(
-            self.csv_labels_window,
+            self.scrollable_frame,
             text="select path",
             width=17,
             font=("Helvetica", 11),
@@ -1098,7 +1219,7 @@ class csvLabels(tk.Frame):
         self.output_button.pack()
 
         # Frame for action buttons
-        frame_submit = tk.Frame(self.csv_labels_window)
+        frame_submit = tk.Frame(self.scrollable_frame)
         frame_submit.pack(pady=(50, 0))
 
         # Submit button
@@ -1125,6 +1246,9 @@ class csvLabels(tk.Frame):
         )
         button_back.pack(side="right")
 
+        self.scrollable_frame.update_idletasks()
+        self.update_window_size()
+
     # Function that closes gracefully the active page when user decides to quit
     def on_exit(self) -> None:
         """
@@ -1139,6 +1263,23 @@ class csvLabels(tk.Frame):
         # Destroy actual page and displays the main page
         self.csv_labels_window.destroy()
         self.root.deiconify()
+
+    def update_window_size(self) -> None:
+        # Get screen height
+        screen_height = self.csv_labels_window.winfo_screenheight()
+
+        frame_heigth = self.scrollable_frame.winfo_height()
+
+        height = frame_heigth if int(screen_height * 0.8) >= frame_heigth else int(screen_height * 0.8)
+
+        # Get width
+        frame_width = self.scrollable_frame.winfo_width()
+
+        width = frame_width + 15 if frame_width > 1 else 630
+
+        # Set the window height and width and restrict resizing
+        self.csv_labels_window.geometry(f"{width}x{height}")
+        self.csv_labels_window.resizable(False, False)
 
     # Function to open the link to avery labels
     def open_link(self, model: int, event: Event) -> None:
@@ -1231,6 +1372,9 @@ class csvLabels(tk.Frame):
             # If there are multiple parameters errors
             self.label_info.config(text="Multiple parameters errors!", foreground="red")
 
+        self.label_info.update_idletasks()
+        self.update_window_size()
+
 
 class newSite(tk.Frame):
     def __init__(self, new_site_window: tk.Toplevel, root: tk.Tk):
@@ -1258,13 +1402,29 @@ class newSite(tk.Frame):
         # Make background white
         self.new_site_window.configure(bg="white")
 
+        # Create a canvas and scrollbar for scrollable functionality
+        self.canvas = tk.Canvas(self.new_site_window, bg="white", highlightthickness=0)
+        self.canvas.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        # Add a scrollbar linked to the canvas
+        scrollbar = ttk.Scrollbar(self.new_site_window, orient="vertical", command=self.canvas.yview)
+        scrollbar.pack(side=tk.RIGHT, fill="y")
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Frame inside the canvas to hold all your widgets
+        self.scrollable_frame = tk.Frame(self.canvas, bg="white")
+        self.scrollable_frame.bind("<Configure>", lambda e: self.canvas.configure(scrollregion=self.canvas.bbox("all")))
+
+        # Add the frame to the canvas
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
         # Create a variable to store the entered text
         self.username = tk.StringVar(None)
         self.password = tk.StringVar(None)
 
         # Create information label
         self.label = tk.Label(
-            self.new_site_window, text="Register a new site", background="white", font=("Helvetica", 16)
+            self.scrollable_frame, text="Register a new site", background="white", font=("Helvetica", 16)
         )
         self.label.pack()
 
@@ -1287,26 +1447,26 @@ class newSite(tk.Frame):
 
             # Create Directus connexion fields
             label_username = tk.Label(
-                self.new_site_window, text="Directus username:", background="white", font=("Helvetica", 12)
+                self.scrollable_frame, text="Directus username:", background="white", font=("Helvetica", 12)
             )
             label_username.pack(pady=(20, 5))
             entry_username = tk.Entry(
-                self.new_site_window, textvariable=self.username, relief="flat", font=("Helvetica", 11)
+                self.scrollable_frame, textvariable=self.username, relief="flat", font=("Helvetica", 11)
             )
             entry_username.pack()
 
             label_password = tk.Label(
-                self.new_site_window, text="Directus password:", background="white", font=("Helvetica", 12)
+                self.scrollable_frame, text="Directus password:", background="white", font=("Helvetica", 12)
             )
             label_password.pack(pady=(20, 5))
             entry_password = tk.Entry(
-                self.new_site_window, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
+                self.scrollable_frame, textvariable=self.password, show="*", relief="flat", font=("Helvetica", 11)
             )
             entry_password.pack()
 
             # Create the country selection box
             label_country = tk.Label(
-                self.new_site_window, text="Search for a country:", background="white", font=("Helvetica", 12)
+                self.scrollable_frame, text="Search for a country:", background="white", font=("Helvetica", 12)
             )
             label_country.pack(pady=(20, 5))
 
@@ -1321,25 +1481,25 @@ class newSite(tk.Frame):
                 bordercolor="#f0f0f0",
             )
 
-            self.combobox_country = ttk.Combobox(self.new_site_window)
+            self.combobox_country = ttk.Combobox(self.scrollable_frame)
             self.combobox_country.pack()
 
             self.listbox_country = tk.Listbox(
-                self.new_site_window, height=3, width=50, font=("Helvetica", 10), relief="flat"
+                self.scrollable_frame, height=3, width=50, font=("Helvetica", 10), relief="flat"
             )
             self.listbox_country.pack()
 
             # Create the university selection box
             label_university = tk.Label(
-                self.new_site_window, text="Search for a university:", background="white", font=("Helvetica", 12)
+                self.scrollable_frame, text="Search for a university:", background="white", font=("Helvetica", 12)
             )
             label_university.pack(pady=(20, 5))
 
-            self.combobox_university = ttk.Combobox(self.new_site_window)
+            self.combobox_university = ttk.Combobox(self.scrollable_frame)
             self.combobox_university.pack()
 
             self.listbox_university = tk.Listbox(
-                self.new_site_window, height=3, width=50, font=("Helvetica", 10), relief="flat"
+                self.scrollable_frame, height=3, width=50, font=("Helvetica", 10), relief="flat"
             )
             self.listbox_university.pack()
 
@@ -1355,12 +1515,12 @@ class newSite(tk.Frame):
 
             # prints the selected site to inform the user which site is actually selected
             self.label_info = tk.Label(
-                self.new_site_window, text="Selected site:", background="white", font=("Helvetica", 12)
+                self.scrollable_frame, text="Selected site:", background="white", font=("Helvetica", 12)
             )
             self.label_info.pack(pady=(20, 5))
 
             # Create the frame for action buttons
-            frame_submit = tk.Frame(self.new_site_window)
+            frame_submit = tk.Frame(self.scrollable_frame)
             frame_submit.pack(pady=(50, 0))
 
             # Submit button
@@ -1387,9 +1547,15 @@ class newSite(tk.Frame):
             )
             button_back.pack(side="right")
 
+            self.scrollable_frame.update_idletasks()
+            self.update_window_size()
+
         # If API request to Hipo fails, informs the user
         else:
             self.label.config(text="No access to Hipo API, please verify your internet connection.", foreground="red")
+
+        self.label.update_idletasks()
+        self.update_window_size()
 
     # Function that closes gracefully the active page when user decides to quit
     def on_exit(self) -> None:
@@ -1405,6 +1571,23 @@ class newSite(tk.Frame):
         # Destroy actual page and displays the main page
         self.new_site_window.destroy()
         self.root.deiconify()
+
+    def update_window_size(self) -> None:
+        # Get screen height
+        screen_height = self.new_site_window.winfo_screenheight()
+
+        frame_heigth = self.scrollable_frame.winfo_height()
+
+        height = frame_heigth if int(screen_height * 0.8) >= frame_heigth else int(screen_height * 0.8)
+
+        # Get width
+        frame_width = self.scrollable_frame.winfo_width()
+
+        width = frame_width if frame_width > 1 else 380
+
+        # Set the window height and width and restrict resizing
+        self.new_site_window.geometry(f"{width}x{height}")
+        self.new_site_window.resizable(False, False)
 
     # Function to update the country list when user types the beginning of the country
     def update_country_suggestions(self) -> None:
@@ -1537,11 +1720,13 @@ class newSite(tk.Frame):
             # If there are multiple parameters errors
             self.label.config(text="Multiple parameters errors!", foreground="red")
 
+        self.label.update_idletasks()
+        self.update_window_size()
+
 
 # Create the main window
 root = tk.Tk()
 root.title("EMI Label Creator")
-root.minsize(600, 260)
 root.configure(bg="white")
 
 # Create the main page
