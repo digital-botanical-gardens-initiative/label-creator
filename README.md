@@ -62,7 +62,7 @@ Label Creator software permits to create all sorts of labels for the EMI project
   and run the `label_creator.py` script:
 
   ```bash
-  python label_creator.py
+  python label_creator/label_creator.py
   ```
 
   If you do not have poetry, you can install it with the command:
