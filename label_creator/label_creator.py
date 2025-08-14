@@ -31,7 +31,7 @@ class MainPage(tk.Frame):
         # Create the tk page
         tk.Frame.__init__(self, parent, *args, **kwargs)
 
-        # Send a request to github to know if this version is the las one
+        # Send a request to github to know if this version is the last one
         release_url = "https://api.github.com/repos/digital-botanical-gardens-initiative/label-creator/releases/latest"
         session = requests.Session()
         response = session.get(release_url)
