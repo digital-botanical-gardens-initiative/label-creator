@@ -21,67 +21,46 @@ Label Creator software permits to create all sorts of labels for the EMI project
 - **Windows:** Simply download the `.exe` binary from the `Releases` tab and run it.
 - **Linux:** Download the `linux` binary from the `Releases` tab, then add execution rights:
 
-  ```bash
-  sudo chmod +x label_creator_vxx_linux
-  ```
+```bash
+sudo chmod +x label_creator_vxx_linux
+```
 
-  It will then be executable. If you want to run it from the command line, you can simply move it to a folder in the PATH (e.g., `/usr/local/bin`). Then you just need to type:
+It will then be executable. If you want to run it from the command line, you can simply move it to a folder in the PATH (e.g., `/usr/local/bin`). Then you just need to type:
 
-  ```bash
-  label_creator_vxx_linux
-  ```
+```bash
+label_creator_vxx_linux
+```
 
-  in bash.
+in bash.
 
 - **MacOS:** Download the `MacOS` binary from the `Releases` tab, then add execution rights:
 
-  ```bash
-  sudo chmod +x label_creator_vxx_macos
-  ```
+```bash
+sudo chmod +x label_creator_vxx_macos
+```
 
-  It will then be executable. If you want to run it from the command line, you can simply move it to a folder in the PATH. Then you just need to type:
+It will then be executable. If you want to run it from the command line, you can simply move it to a folder in the PATH. Then you just need to type:
 
-  ```bash
-  label_creator_vxx_macos
-  ```
+```bash
+label_creator_vxx_macos
+```
 
-  in the terminal.
+in the terminal.
 
 - **General method:** Clone the project, then set up an environment with `poetry`:
 
-  ```bash
-  poetry install
-  ```
-
-  Then activate the environment:
-
-  ```bash
-  poetry shell
-  ```
-
-  and run the `label_creator.py` script:
-
-  ```bash
-  poetry run python label_creator/label_creator.py
-  ```
-
-  If you do not have poetry, you can install it with the command:
-
-  ```bash
-  pipx install poetry
-  ```
-
-
-#### Notes
-
-`env activate` is a Poetry subcommand, not a shell command. Use one of these instead:
-
 ```bash
-poetry env activate
+poetry install
 ```
 
-or
+Run the `label_creator.py` script:
 
 ```bash
-poetry shell
+poetry run python label_creator/label_creator.py
+```
+
+If you do not have poetry, you can install it with the command:
+
+```bash
+pipx install poetry
 ```
