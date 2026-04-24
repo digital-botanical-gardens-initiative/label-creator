@@ -62,7 +62,7 @@ Label Creator software permits to create all sorts of labels for the EMI project
   and run the `label_creator.py` script:
 
   ```bash
-  poetry python label_creator/label_creator.py
+  poetry run python label_creator/label_creator.py
   ```
 
   If you do not have poetry, you can install it with the command:
@@ -70,3 +70,18 @@ Label Creator software permits to create all sorts of labels for the EMI project
   ```bash
   pipx install poetry
   ```
+
+
+#### Notes
+
+`env activate` is a Poetry subcommand, not a shell command. Use one of these instead:
+
+```bash
+poetry env activate
+```
+
+or
+
+```bash
+poetry shell
+```
